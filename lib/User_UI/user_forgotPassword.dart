@@ -116,8 +116,7 @@ class _worker_forgotState extends State<user_forget> {
                           ),
                           new Expanded(
                             child: TextFormField(
-                              onChanged: (value)
-                              {
+                              onChanged: (value) {
                                 email = value;
                               },
                               decoration: InputDecoration(
@@ -136,70 +135,80 @@ class _worker_forgotState extends State<user_forget> {
                     Center(
                       child: GestureDetector(
                         onTap: () async {
-    await _firebaseAuth
-        .sendPasswordResetEmail(email: email)
-        .whenComplete(() {
-    showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.all(
-                                          Radius.circular(20))),
-                                  content: Container(
-                                    height: height / 9,
-                                    child: Column(
-                                      children: <Widget>[
-                                        Text("Check Your Email"),
-                                        SizedBox(
-                                          height: height / 60,
-                                        ),
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
+                          await _firebaseAuth
+                              .sendPasswordResetEmail(email: email)
+                              .whenComplete(() {
+                            showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(20))),
+                                      content: Container(
+                                        height: height / 6.4,
+                                        child: Column(
                                           children: <Widget>[
-                                            ButtonTheme(
-                                              minWidth: width / 4,
-                                              height: height / 18,
-                                              child: FlatButton(
-                                                shape:
-                                                    new RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      new BorderRadius.circular(
-                                                          20.0),
-                                                  //    side: BorderSide(color: Color(0xff2CBE77))
-                                                ),
-                                                color: Color(0xff9847b7),
-                                                textColor: Colors.white,
-                                                child: Text(
-                                                  "Ok",
-                                                  style: TextStyle(
-                                                      fontSize: height / 50,
-                                                      fontWeight:
-                                                          FontWeight.w500
-                                                      //letterSpacing: 1
-                                                      ),
-                                                ),
-                                                onPressed: () {
-                                                  Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              user_login()));
-                                                },
+                                            Text(
+                                                "We sent email to : "
+                                            ),
+                                            SizedBox(
+                                              height: height / 60,
+                                            ),
+                                            Text(
+                                              "$email",
+                                              style: TextStyle(
+                                                color: Colors.blue,
                                               ),
                                             ),
+                                            SizedBox(
+                                              height: height / 60,
+                                            ),
+                                            Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: <Widget>[
+                                                ButtonTheme(
+                                                  minWidth: width / 4,
+                                                  height: height / 18,
+                                                  child: FlatButton(
+                                                    shape:
+                                                        new RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          new BorderRadius
+                                                              .circular(20.0),
+                                                      //    side: BorderSide(color: Color(0xff2CBE77))
+                                                    ),
+                                                    color: Color(0xff9847b7),
+                                                    textColor: Colors.white,
+                                                    child: Text(
+                                                      "Ok",
+                                                      style: TextStyle(
+                                                          fontSize: height / 50,
+                                                          fontWeight:
+                                                              FontWeight.w500
+                                                          //letterSpacing: 1
+                                                          ),
+                                                    ),
+                                                    onPressed: () {
+                                                      Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  user_login()));
+                                                    },
+                                                  ),
+                                                ),
+                                              ],
+                                            )
                                           ],
-                                        )
-                                      ],
-                                    ),
-                                  ));
-                            },
-                          );
-                        }),
-    },
+                                        ),
+                                      ));
+                                });
+                          });
+                        },
                         child: Container(
                           width: width / 1.2,
                           height: 50.0,
