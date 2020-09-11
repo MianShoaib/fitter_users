@@ -2,9 +2,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:fitter_users/User_Models/fitter_event_model.dart';
+import 'package:fitter_users/User_Models/fitter_participants_model.dart';
+import 'package:fitter_users/User_UI/card_event_vertical.dart';
 import 'package:fitter_users/User_UI/drawer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'user_editProfile.dart';
 import 'user_friends.dart';
@@ -29,10 +33,13 @@ class Post {
   Post(this.title, this.body);
 }
 
-class Profile_State extends State<user_profile> {
+class Profile_State extends State<user_profile>
+{
   FirebaseUser user;
-  DocumentSnapshot userdata;
-  var _downloadURL;
+  String name,url,email,hometown,area,worker_name, worker_url;
+  SharedPreferences _pref;
+  List<String> event_ids = List();
+  List<Event> list_of_events = List();
   int worker = 22;
   int friends = 324;
   int followers = 681;
@@ -59,40 +66,85 @@ class Profile_State extends State<user_profile> {
     ),
   ];
 
-  Future downloadImage() async
-  {
-    String downloadAddress = await FirebaseStorage.instance.ref().child(userdata["photourl"]).getDownloadURL();
-    print(downloadAddress);
-    setState(() {
-      _downloadURL = downloadAddress;
-    });
-  }
-
-  Future getData() async
-  {
-    user = await FirebaseAuth.instance.currentUser();
-    Firestore firestore = Firestore.instance;
-    await firestore.collection("users").document(user.email)
-        .get()
-        .then((doc) {
-      if (doc.exists) {
-        userdata = doc;
-      }
-      else {
-        // doc.data() will be undefined in this case
-        print("No such document!");
-      }
-    });
-  }
-
   void Init() async
   {
-    await getData();
-    await downloadImage();
+    _pref = await SharedPreferences.getInstance();
+    email = _pref.getString("email");
+    name = _pref.getString("fullname");
+    url = _pref.getString("photourl");
+    hometown = _pref.getString("home_town");
+    area = _pref.getString("area");
+    worker = int.parse(_pref.getString("workers"));
+    friends = int.parse(_pref.getString("friends"));
+    followers = int.parse(_pref.getString("followers"));
+    setState(() {
+    });
+    ////////////////////////////////////////////////////////////////
+    Firestore firestore = Firestore.instance;
+    var collectionReference = firestore.collection("users").document(email).collection("Events");
+    QuerySnapshot eventIDdocs = await collectionReference.getDocuments();
+    List<DocumentSnapshot> alleventdocs = eventIDdocs.documents;
+    for (var each_doc in alleventdocs)
+    {
+      event_ids.add(each_doc.data["eventID"]);
+    }
+    for (String each in event_ids)
+    {
+      DocumentReference events = await firestore.collection("Events").document(each);
+      events.get().then((value)
+      {
+        worker_name = value.data["name"];
+        worker_url = value.data["photourl"];
+      });
+      CollectionReference events_collection = events.collection("Event");
+      QuerySnapshot event_docs = await events_collection.getDocuments();
+      List<DocumentSnapshot> all_event_doc = event_docs.documents;
+      for (var each in all_event_doc)
+      {
+        List<Participants> all_participants = List();
+        QuerySnapshot participant_query =
+        await each.reference.collection("participants").getDocuments();
+        List<DocumentSnapshot> all_part = participant_query.documents;
+        for (var each_part in all_part)
+        {
+          Participants participant = new Participants(
+            name: each_part.data["name"],
+            rating: each_part.data["rating"],
+            photourl: each_part.data["url"],
+            desc: each_part.data["desc"],
+          );
+          all_participants.add(participant);
+        }
+        Event event = new Event(
+          Worker_name: worker_name,
+          Worker_url: worker_url,
+          end_date: each.data["end_date"].toDate(),
+          note: each.data["note"],
+          no_of_people: each.data["no_of_people"],
+          title: each.data["title"],
+          type: each.data["type"],
+          duration: each.data["duration"],
+          time1: each.data["time1"].toDate(),
+          time2: each.data["time2"].toDate(),
+          user_price: each.data["user_price"],
+          repeat: each.data["repeat"],
+          location: each.data["location"],
+          worker: each.data["worker"],
+          start_date: each.data["start_date"].toDate(),
+          status: each.data["status"],
+          list_participants: all_participants,
+        );
+        setState(()
+        {
+          list_of_events.add(event);
+        });
+      }
+    }
   }
 
   @override
-  void initState() {
+  void initState()
+  {
     Init();
     // TODO: implement initState
     super.initState();
@@ -115,51 +167,23 @@ class Profile_State extends State<user_profile> {
           elevation: 0,
 
         ),
-        drawer: SideDrawer(downloadURL: _downloadURL, userdata: userdata, height: height, width: width),
+        drawer: SideDrawer(downloadURL: url, name: name, height: height, width: width),
         backgroundColor: Color(0xffe3e1e1),
         body: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-//              Container(
-//                  decoration: new BoxDecoration(
-//                    color: Color(0xffe3e1e1),
-//                    borderRadius: new BorderRadius.only(
-//                        topLeft: const Radius.circular(0.0),
-//                        bottomLeft: const Radius.circular(40.0),
-//                        bottomRight: const Radius.circular(40.0),
-//                        topRight: const Radius.circular(0.0)),
-//                    boxShadow: [
-//                      BoxShadow(
-//                          color: Color(0xff9847b7).withOpacity(0.2),
-//                          spreadRadius: 3.0,
-//                          blurRadius: 5.0)
-//                    ],
-//                  ),
-//                  //color: Colors.white,
-//                  height: height / 8,
-//                  width: width / 1,
-//                  child: Image.asset("images/splash_logo.png",
-//                  scale: 8,),
-//
-////                  Image.asset("images/splash_logo.png",
-////                  )
-//              ),
               SizedBox(
                 height: height / 40,
               ),
-
-
-
               Container(
                 width: width/1.1,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
-
                     Column(
                       children: <Widget>[
-                        _downloadURL==null ?
+                        url==null ?
                         CircleAvatar(
                           backgroundColor: Colors.white70,
                           backgroundImage:
@@ -168,11 +192,11 @@ class Profile_State extends State<user_profile> {
                         ) :
                         CircleAvatar(
                           backgroundColor: Colors.white70,
-                          backgroundImage: NetworkImage(_downloadURL),
+                          backgroundImage: NetworkImage(url),
                           radius: 30,
                         ),
                         Text(
-                          userdata == null ? "Name" : userdata["fullname"],
+                          name == null ? "Name" : name,
                           style: TextStyle(
                               fontSize: height / 42,
                               fontWeight: FontWeight.w500,
@@ -188,7 +212,7 @@ class Profile_State extends State<user_profile> {
                     Column(
                       children: <Widget>[
                         Text(
-                          userdata == null ? "$worker" : userdata["workers"].toString(),
+                          worker == null ? "0" : '${worker}',
                           style: TextStyle(
                             fontSize: height / 36,
                             fontWeight: FontWeight.bold,
@@ -223,7 +247,7 @@ class Profile_State extends State<user_profile> {
                       child: Column(
                         children: <Widget>[
                           Text(
-                            userdata == null ? "$friends" : userdata["friends"].toString(),
+                            friends == null ? "0" : '${friends}',
                             style: TextStyle(
                               fontSize: height / 36,
                               fontWeight: FontWeight.bold,
@@ -251,7 +275,7 @@ class Profile_State extends State<user_profile> {
                     Column(
                       children: <Widget>[
                         Text(
-                          userdata == null ? "$followers" : userdata["followers"].toString(),
+                          followers == null ? "0" : '${followers}',
                           style: TextStyle(
                             fontSize: height / 36,
                             fontWeight: FontWeight.bold,
@@ -278,15 +302,11 @@ class Profile_State extends State<user_profile> {
                   ],
                 ),
               ),
-
-
               Divider(
                 color: Colors.grey,
 //                thickness: 1,
               ),
-
               SizedBox(height: height/60,),
-
               GestureDetector(
                 onTap: ()
                 {
@@ -315,15 +335,11 @@ class Profile_State extends State<user_profile> {
                     ),),),
                 ),
               ),
-
               SizedBox(height: height/60,),
 
               Divider(
                 color: Colors.grey,
               ),
-
-
-
               SizedBox(
                 height: height/60,
               ),
@@ -345,7 +361,7 @@ class Profile_State extends State<user_profile> {
 
 
                     Text(
-                      userdata == null ? "I Love Myself" : userdata["area"],
+                      area == null ? "I Love Myself" : area,
                       style: TextStyle(
                           fontSize: height / 42,
                           fontWeight: FontWeight.w800,
@@ -377,7 +393,7 @@ class Profile_State extends State<user_profile> {
                     ),
                     SizedBox(width: width/60,),
                     Text(
-                      userdata == null ? "Pir Mahal,Toba tek Singh" : userdata["home_town"],
+                      hometown == null ? "Pir Mahal,Toba tek Singh" : hometown,
                       style: TextStyle(
                           fontSize: height / 42,
                           fontWeight: FontWeight.w800,
@@ -393,17 +409,9 @@ class Profile_State extends State<user_profile> {
                   ],
                 ),
               ),
-
-//                  SizedBox(
-//                    height: height/60,
-//                  ),
-
               Divider(
                 color: Colors.grey,
               ),
-
-
-
               SizedBox(
                 height: height/60,
               ),
@@ -424,161 +432,19 @@ class Profile_State extends State<user_profile> {
               SizedBox(
                 height: height/90,
               ),
-
-
               Container(
                 color: Color(0xffe3e1e1),
                 height: height/2,
 //                      width: width / 1,
                 child: ListView.builder(
                   physics: NeverScrollableScrollPhysics(),
-                  itemCount: listdata.length,
-                  itemBuilder: (context, index) {
-                    return Card(
-                      color: Color(0xffebebeb),
-                      elevation: 1,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 10,bottom: 10),
-                        child: ListTile(
-                          onTap: (){
-//                              Navigator.push(context,
-//                                            MaterialPageRoute(builder: (context) => navigate_User()));
-                            print("Hell");
-                          },
-                          title: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: <Widget>[
-                              Container(
-                                //color: Colors.yellow,
-                                width: width / 4.4,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: <Widget>[
-                                    CircleAvatar(
-                                      backgroundImage:
-                                      AssetImage(listdata[index].imageUrl),
-                                      radius: 26,
-                                    ),
-                                    Text(
-                                      listdata[index].personname,
-                                      style: TextStyle(
-                                          fontSize: height / 50,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xff413564)),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    Text(
-                                      ("\$")+listdata[index].price,
-                                      style: TextStyle(
-                                          fontSize: height / 50,
-                                          fontWeight: FontWeight.bold,
-                                          color: Color(0xff413564)),
-                                      textAlign: TextAlign.center,
-                                    ),
-
-                                  ],
-                                ),
-                              ),
-                              SizedBox(
-                                width: width/60,
-                              ),
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Container(
-//                                    color: Colors.red,
-                                    width: width/2.4,
-                                    child: Text(
-                                      listdata[index].heading,
-                                      style: TextStyle(
-                                          fontSize: height / 42,
-                                          fontWeight: FontWeight.w500,
-                                          color: Color(0xff4f4848)),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                      //textAlign: TextAlign.center,
-                                    ),
-                                  ),
-
-                                  SizedBox(
-                                    height: height/90,
-                                  ),
-                                  Row(
-                                    children: <Widget>[
-
-
-                                      Icon(Icons.bookmark_border,size: 14,),
-                                      Text(
-                                        listdata[index].lesson,
-                                        style: TextStyle(
-                                            fontSize: height / 54,
-                                            fontWeight: FontWeight.w500,
-                                            color: Color(0xff4f4848)),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        //textAlign: TextAlign.center,
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: height/90,
-                                  ),
-                                  Row(
-                                    children: <Widget>[
-                                      Icon(Icons.access_time,size: 14,),
-                                      Text(
-                                        listdata[index].time,
-                                        style: TextStyle(
-                                            fontSize: height / 54,
-                                            fontWeight: FontWeight.w500,
-                                            color: Color(0xff4f4848)),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        //textAlign: TextAlign.center,
-                                      ),
-                                    ],
-                                  ),
-                                  SizedBox(
-                                    height: height/90,
-                                  ),
-                                  Row(
-                                    children: <Widget>[
-                                      Icon(Icons.location_on,size: 14,),
-                                      Text(
-                                        listdata[index].address,
-                                        style: TextStyle(
-                                            fontSize: height / 54,
-                                            fontWeight: FontWeight.w500,
-                                            color: Color(0xff4f4848)),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        //textAlign: TextAlign.center,
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                          trailing: Container(
-//                              color: Colors.green,
-                            width: width/6,
-                            child: Row(
-                              children: <Widget>[
-                                Icon(Icons.label,size: 18,),
-                                Text("Open",
-                                    style: TextStyle(
-                                        fontSize: height / 56,
-                                        fontWeight: FontWeight.w500,
-                                        color: Color(0xff4f4848)))
-                              ],
-                            ),
-                          ),
-
-                        ),
-                      ),
+                  itemCount: list_of_events.length,
+                  itemBuilder: (context, index)
+                  {
+                    return Event_Card(
+                      width: width,
+                      height: height,
+                      event: list_of_events[index],
                     );
                   },
 //                        separatorBuilder: (context, index)

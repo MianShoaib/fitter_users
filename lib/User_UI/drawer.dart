@@ -13,13 +13,13 @@ class SideDrawer extends StatelessWidget
   const SideDrawer({
     Key key,
     @required  downloadURL,
-    @required this.userdata,
+    @required this.name,
     @required this.height,
     @required this.width,
   }) : _downloadURL = downloadURL, super(key: key);
 
   final String _downloadURL;
-  final DocumentSnapshot userdata;
+  final String name;
   final double height;
   final double width;
 
@@ -68,7 +68,7 @@ class SideDrawer extends StatelessWidget
                     Align(
                       alignment: Alignment.center + Alignment(.0, .8),
                       child: Text(
-                        userdata == null ? "Name" : userdata["fullname"],
+                        name == null ? "Name" : name,
                         style:
                         TextStyle(color: Color(0xff8C04FF), fontSize: 16),
                       ),

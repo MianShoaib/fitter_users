@@ -1,8 +1,11 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:fitter_users/User_UI/user_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 
@@ -11,9 +14,43 @@ class user_purse extends StatefulWidget {
   purse_updateState createState() => purse_updateState();
 }
 
-class purse_updateState extends State<user_purse> {
+class purse_updateState extends State<user_purse>
+{
+  FirebaseUser user;
+
+  SharedPreferences _pref;
+  String cardnumber,name,cv_number,M_Y;
+  var cardnumber_controller = TextEditingController(),
+      name_controller = TextEditingController(),
+      cv_number_controller = TextEditingController(),
+      M_Y_controller = TextEditingController();
+
+  final _cardnumber_key = GlobalKey<FormState>(),
+      _name_Key = GlobalKey<FormState>(),
+      _cv_number_Key = GlobalKey<FormState>(),
+      _M_Y_key = GlobalKey<FormState>();
+
+  Future Init() async
+  {
+    user = await FirebaseAuth.instance.currentUser();
+    _pref = await SharedPreferences.getInstance();
+    print(_pref);
+    setState(()
+    {
+      cardnumber = _pref.get("cardnumber");
+      name = _pref.get("name");
+      cv_number = _pref.get("cv_number");
+      M_Y = _pref.get("M_Y");
+    });
+  }
 
 
+  @override
+  void initState() {
+    Init();
+    // TODO: implement initState
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
@@ -43,8 +80,6 @@ class purse_updateState extends State<user_purse> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-
-
               SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -53,10 +88,6 @@ class purse_updateState extends State<user_purse> {
                     SizedBox(
                       height: height/60,
                     ),
-
-
-
-
                     Center(
                       child: Image(
                         image: AssetImage("images/user/credit_card.png"),
@@ -64,11 +95,6 @@ class purse_updateState extends State<user_purse> {
                         width: 200,
                       ),
                     ),
-
-
-
-
-
                     Padding(
                       padding: const EdgeInsets.only(left: 40.0),
                       child: Text(
@@ -104,13 +130,29 @@ class purse_updateState extends State<user_purse> {
                             margin: const EdgeInsets.only(left: 00.0, right: 10.0),
                           ),
                           new Expanded(
-                            child: TextField(
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: 'xxxx xxxx xxxx xxxx',
-                                hintStyle: TextStyle(color: Colors.grey),
+                            child: Form(
+                              key: _cardnumber_key,
+                              child: TextFormField(
+                                controller: cardnumber_controller
+                                  ..text = cardnumber == null ? "" : cardnumber,
+                                onChanged: (value)
+                                {
+                                  cardnumber = value;
+                                },
+                                validator: (value) {
+                                  if (value.isEmpty || value.length!=16)
+                                  {
+                                    return 'Please enter valid Card Number of Lenght 16';
+                                  }
+                                  return null;
+                                },
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: 'xxxx xxxx xxxx xxxx',
+                                  hintStyle: TextStyle(color: Colors.grey),
+                                ),
+                                keyboardType: TextInputType.number,
                               ),
-                              keyboardType: TextInputType.number,
                             ),
                           )
                         ],
@@ -153,13 +195,29 @@ class purse_updateState extends State<user_purse> {
                             margin: const EdgeInsets.only(left: 00.0, right: 10.0),
                           ),
                           new Expanded(
-                            child: TextField(
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: '09-2020',
-                                hintStyle: TextStyle(color: Colors.grey),
+                            child: Form(
+                              key: _M_Y_key,
+                              child: TextFormField(
+                                controller: M_Y_controller
+                                  ..text = M_Y == null ? "" : M_Y,
+                                onChanged: (value)
+                                {
+                                  M_Y = value;
+                                },
+                                validator: (value) {
+                                  if (value.isEmpty)
+                                  {
+                                    return 'Please enter valid Month/Year';
+                                  }
+                                  return null;
+                                },
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: '09-2020',
+                                  hintStyle: TextStyle(color: Colors.grey),
+                                ),
+                                keyboardType: TextInputType.number,
                               ),
-                              keyboardType: TextInputType.number,
                             ),
                           )
                         ],
@@ -203,13 +261,29 @@ class purse_updateState extends State<user_purse> {
                             margin: const EdgeInsets.only(left: 00.0, right: 10.0),
                           ),
                           new Expanded(
-                            child: TextField(
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: 'XXX',
-                                hintStyle: TextStyle(color: Colors.grey),
+                            child: Form(
+                              key: _cv_number_Key,
+                              child: TextFormField(
+                                controller: cv_number_controller
+                                  ..text = cv_number == null ? "" : cv_number,
+                                onChanged: (value)
+                                {
+                                  cv_number = value;
+                                },
+                                validator: (value) {
+                                  if (value.isEmpty || value.length!=3)
+                                  {
+                                    return 'Please enter valid Card Number of Lenght 3';
+                                  }
+                                  return null;
+                                },
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: 'XXX',
+                                  hintStyle: TextStyle(color: Colors.grey),
+                                ),
+                                keyboardType: TextInputType.number,
                               ),
-                              keyboardType: TextInputType.number,
                             ),
                           )
                         ],
@@ -252,39 +326,75 @@ class purse_updateState extends State<user_purse> {
                             margin: const EdgeInsets.only(left: 00.0, right: 10.0),
                           ),
                           new Expanded(
-                            child: TextField(
-                              decoration: InputDecoration(
-                                border: InputBorder.none,
-                                hintText: 'Sohal Ahmad Rajput',
-                                hintStyle: TextStyle(color: Colors.grey),
+                            child: Form(
+                              key: _name_Key,
+                              child: TextFormField(
+                                controller: name_controller
+                                  ..text = name == null ? "" : name,
+                                onChanged: (value)
+                                {
+                                  name = value;
+                                },
+                                validator: (value) {
+                                  if (value.isEmpty)
+                                  {
+                                    return 'Please enter Name';
+                                  }
+                                  return null;
+                                },
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: 'Sohal Ahmad Rajput',
+                                  hintStyle: TextStyle(color: Colors.grey),
+                                ),
+                                keyboardType: TextInputType.number,
                               ),
-                              keyboardType: TextInputType.number,
                             ),
                           )
                         ],
                       ),
                     ),
-
-
-
-
-
-
-
-
                     SizedBox(
                       height: height/30,
                     ),
 
                     Center(
                       child: GestureDetector(
-                        onTap: ()
+                        onTap: () async
                         {
+                          print("Updating Purse");
+                        if(_name_Key.currentState.validate() &&
+                        _cv_number_Key.currentState.validate() &&
+                        _M_Y_key.currentState.validate() &&
+                        _cardnumber_key.currentState.validate())
+                        {
+                          _pref.setString("cardnumber", cardnumber);
+                        _pref.setString("name", name);
+                        _pref.setString("cv_number", cv_number);
+                        _pref.setString("M_Y", M_Y);
+                        bool store = await _pref.commit();
+                        if(store)
+                        {
+                        print("Purse Stored in Preferences as well");
+                        }
+
+                        final firestore = Firestore.instance;
+                        firestore.collection("users").document(user.email)
+                            .collection("Purse").document(user.email).updateData({
+                        "cardnumber": cardnumber,
+                        "name": name,
+                        "cv_number": cv_number,
+                        "M_Y": M_Y
+                        })
+                            .then((value)
+                        {
+                        print("User Purse Updated in Preferences as well");
                             Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => user_navigation_bar()));
-                        },
+                        });
+                        }},
                         child: Container(
                           width: width/1.2,
                           height: 50.0,

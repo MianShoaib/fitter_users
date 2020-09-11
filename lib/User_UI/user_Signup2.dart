@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:fitter_users/User_Models/fitter_user_model.dart';
+import 'package:fitter_users/User_Models/fitter_user_purse.dart';
 import 'package:fitter_users/User_UI/user_login.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -29,24 +31,14 @@ class _Signup_State extends State<user_SignUp2>
   _Signup_State({this.fullname, this.user_email, this.user_pass, this.birth_date, this.home_town, this.gender,this.imagefile});
   String area , photourl = "";
 
+  var area_controller = TextEditingController();
+  final _area_Key = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context)
   {
-
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-
-    Future uploadImage(BuildContext context) async
-    {
-      String filename = basename(imagefile.path);
-      StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child(user_email);
-      StorageUploadTask uploadTask = firebaseStorageRef.putFile(imagefile);
-      StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
-      photourl = taskSnapshot.ref.path;
-      print(photourl);
-    }
-
-
 
     return Scaffold(
       backgroundColor: Color(0xffe3e1e1),
@@ -64,8 +56,6 @@ class _Signup_State extends State<user_SignUp2>
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-
-
                 Container(
                   decoration: new BoxDecoration(
                     color: Color(0xffe3e1e1),
@@ -175,15 +165,25 @@ class _Signup_State extends State<user_SignUp2>
                                 margin: const EdgeInsets.only(left: 00.0, right: 10.0),
                               ),
                               new Expanded(
-                                child: TextField(
-                                  onChanged: (value)
-                                  {
-                                    area = value;
-                                  },
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: 'select the area You Love',
-                                    hintStyle: TextStyle(color: Colors.grey),
+                                child: Form(
+                                  key: _area_Key,
+                                  child: TextFormField(
+                                    controller: area_controller,
+                                    onChanged: (value)
+                                    {
+                                      area = value;
+                                    },
+                                    validator: (value) {
+                                      if (value.isEmpty) {
+                                        return 'Please enter favoutrite area';
+                                      }
+                                      return null;
+                                    },
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: 'select the area You Love',
+                                      hintStyle: TextStyle(color: Colors.grey),
+                                    ),
                                   ),
                                 ),
                               )
@@ -198,32 +198,38 @@ class _Signup_State extends State<user_SignUp2>
                           child: GestureDetector(
                             onTap: () async
                             {
-                              print(fullname);
+                              if(_area_Key.currentState.validate())
+                              {print(fullname);
                               print(user_email);
                               print(user_pass);
                               print(birth_date);
                               print(home_town);
                               print(gender);
-                              print(area);
+                              print(area);}
+
                               FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
                               AuthResult result = await _firebaseAuth.createUserWithEmailAndPassword(email: user_email, password: user_pass);
-                              if(result!=null) {
+                              FirebaseUser user = result.user;
+                              if(result!=null)
+                              {
                                 print("User Created");
-                                await uploadImage(context);
-                                final firestoreInstance = Firestore.instance;
-                                firestoreInstance.collection("users").document(user_email).setData(
-                                    {
-                                      "fullname" : fullname,
-                                      "email" : user_email,
-                                      "photourl" : photourl,
-                                      "birth_date" : birth_date,
-                                      "home_town" : home_town,
-                                      "gender" : gender,
-                                      "area" : area,
-                                      "workers" : "0",
-                                      "friends" : "0",
-                                      "followers" : "0",
-                                    });
+                                AppUser worker = new AppUser(
+                                    fullname: fullname,
+                                    email: user_email,
+                                    home_town: home_town,
+                                    birth_date: birth_date,
+                                    area: area,
+                                    gender: gender,
+                                    photourl: user_email,
+                                    image: imagefile);
+                                Purse purse = new Purse(
+                                    name: "",
+                                  cardnumber: "",
+                                  cv_number: "",
+                                  M_Y: "",
+                                );
+                                await worker.storeWorker(user, worker, purse, false);
+                                print("User stored successfully");
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(

@@ -3,29 +3,50 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:fitter_users/User_UI/user_login.dart';
 import 'package:fitter_users/User_UI/user_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_country_picker/flutter_country_picker.dart';
 import 'package:path/path.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class user_editProfile extends StatefulWidget
-{
-
-
+class user_editProfile extends StatefulWidget {
   @override
   _admin_loginState createState() => _admin_loginState();
 }
 
-class _admin_loginState extends State<user_editProfile>
-{
-  String fullname = "", user_email = "", user_pass1 = "", user_pass2 = "", home_town = "", imagefile = "", area = "", photourl = "";
+class _admin_loginState extends State<user_editProfile> {
+  String name = "",
+      email = "",
+      pass1 = "",
+      pass2 = "",
+      hometown = "",
+      imagefile = "",
+      area = "",
+      url = "";
   FirebaseUser user;
-  DocumentSnapshot userdata;
-  var _downloadURL;
   bool imagepicked = false;
   var gendertype = "1";
+  SharedPreferences _pref;
+  bool f1 = false, f2 = false;
+  //--------------------------------------------------------
+  //--------------------------------------------------------
+  Firestore firestoreinstance = Firestore.instance;
+  //--------------------------------------------------------
+  var name_controller = TextEditingController(),
+      pass1_controller = TextEditingController(),
+      pass2_controller = TextEditingController(),
+      area_controller = TextEditingController(),
+      town_controller = TextEditingController();
+
+  final _name_Key = GlobalKey<FormState>(),
+      _pass1_key = GlobalKey<FormState>(),
+      _pass2_key = GlobalKey<FormState>(),
+      _town_Key = GlobalKey<FormState>(),
+      _area_Key = GlobalKey<FormState>();
 
   DateTime selectedDate = DateTime.now();
   Future<Null> _selectDate(BuildContext context) async {
@@ -74,35 +95,31 @@ class _admin_loginState extends State<user_editProfile>
         value: gendertype,
       );
 
-  //User Type Code
-  /*var usertype = "1";
-  DropdownButton userTpe() => DropdownButton<String>(
-        icon: Icon(
-          Icons.arrow_drop_down_circle,
-          size: 18,
-        ),
-        items: [
-          DropdownMenuItem<String>(
-            value: "1",
-            child: Text(
-              "Professional Liability Insurance",
-            ),
-          ),
-          DropdownMenuItem<String>(
-            value: "2",
-            child: Text(
-              "User",
-            ),
-          ),
-        ],
-        onChanged: (value) {
-          setState(() {
-            usertype = value;
-            print(usertype);
-          });
-        },
-        value: usertype,
-      );*/
+  void ShowToast(String message) {
+    Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.purple.shade300,
+        textColor: Colors.white);
+  }
+
+  void Storepref() async
+  {
+    SharedPreferences _pref = await SharedPreferences.getInstance();
+    _pref.setString("fullname", name);
+    _pref.setString("photourl", url);
+    _pref.setString("birth_date", selectedDate.toString());
+    _pref.setString("home_town", hometown);
+    _pref.setString("gender", gendertype.toString());
+    _pref.setString("area", area);
+    bool store = await _pref.commit();
+    if(store)
+    {
+      print("User Stored in Preferences as well");
+    }
+  }
 
   File _image;
   var pickedFile;
@@ -123,27 +140,10 @@ class _admin_loginState extends State<user_editProfile>
 
   Future downloadImage() async
   {
-    String downloadAddress = await FirebaseStorage.instance.ref().child(userdata["photourl"]).getDownloadURL();
+    String downloadAddress = await FirebaseStorage.instance.ref().child(user.email).getDownloadURL();
     print(downloadAddress);
     setState(() {
-      _downloadURL = downloadAddress;
-    });
-  }
-
-  Future getData() async
-  {
-    user = await FirebaseAuth.instance.currentUser();
-    Firestore firestore = Firestore.instance;
-    await firestore.collection("users").document(user.email)
-        .get()
-        .then((doc) {
-      if (doc.exists) {
-        userdata = doc;
-      }
-      else {
-        // doc.data() will be undefined in this case
-        print("No such document!");
-      }
+      url = downloadAddress;
     });
   }
 
@@ -164,24 +164,17 @@ class _admin_loginState extends State<user_editProfile>
     print(_image);
     StorageUploadTask uploadTask = firebaseStorageRef.putFile(_image);
     StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
-    photourl = taskSnapshot.ref.path;
-    print(photourl);
+    url = taskSnapshot.ref.path;
   }
 
-
-  void Init() async
-  {
-    await getData();
-    await downloadImage();
-    if(userdata != null)
-    {
-      fullname = userdata["fullname"];
-      home_town = userdata["home_town"];
-      area = userdata["area"];
-      selectedDate = userdata["birth_date"].toDate();
-      gendertype = userdata["gender"];
-      _image = NetworkImage(_downloadURL) as File;
-    }
+  void Init() async {
+    _pref = await SharedPreferences.getInstance();
+    email = _pref.getString("email");
+    name = _pref.getString("fullname");
+    url = _pref.getString("photourl");
+    hometown = _pref.getString("home_town");
+    area = _pref.getString("area");
+    setState(() {});
   }
 
   @override
@@ -190,7 +183,6 @@ class _admin_loginState extends State<user_editProfile>
     // TODO: implement initState
     super.initState();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -251,23 +243,24 @@ class _admin_loginState extends State<user_editProfile>
                           height: height / 60,
                         ),
                         Center(
-                          child: _downloadURL == null || imagepicked != false ?
-                          _image == null ? CircleAvatar(
-                            backgroundColor: Colors.white70,
-                            backgroundImage:
-                            AssetImage("images/user/pic1.JPG"),
-                            radius: 30,
-                          ) : CircleAvatar(
-                            backgroundColor: Colors.white70,
-                            backgroundImage: FileImage(_image),
-                            radius: 30,
-                          )
-                           :
-                          CircleAvatar(
-                            backgroundColor: Colors.white70,
-                            backgroundImage: NetworkImage(_downloadURL),
-                            radius: 30,
-                          ),
+                          child: url == null || imagepicked != false
+                              ? _image == null
+                                  ? CircleAvatar(
+                                      backgroundColor: Colors.white70,
+                                      backgroundImage:
+                                          AssetImage("images/user/pic1.JPG"),
+                                      radius: 30,
+                                    )
+                                  : CircleAvatar(
+                                      backgroundColor: Colors.white70,
+                                      backgroundImage: FileImage(_image),
+                                      radius: 30,
+                                    )
+                              : CircleAvatar(
+                                  backgroundColor: Colors.white70,
+                                  backgroundImage: NetworkImage(url),
+                                  radius: 30,
+                                ),
                         ),
                         GestureDetector(
                           onTap: getImage,
@@ -333,16 +326,25 @@ class _admin_loginState extends State<user_editProfile>
                                     left: 00.0, right: 10.0),
                               ),
                               new Expanded(
-                                child: TextField(
-                                  onChanged: (value)
-                                  {
-                                    fullname = value;
-                                  },
-                                  controller: TextEditingController()..text = fullname == null ?  userdata == null ? "" : userdata["fullname"] : fullname,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: "Enter you Name Here",
-                                    hintStyle: TextStyle(color: Colors.grey),
+                                child: Form(
+                                  key: _name_Key,
+                                  child: TextFormField(
+                                    onChanged: (value) {
+                                      name = value;
+                                    },
+                                    controller: name_controller
+                                      ..text = name == null ? "" : name,
+                                    validator: (value) {
+                                      if (value.isEmpty) {
+                                        return 'Please enter valid Username.';
+                                      }
+                                      return null;
+                                    },
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: "Enter you Name Here",
+                                      hintStyle: TextStyle(color: Colors.grey),
+                                    ),
                                   ),
                                 ),
                               )
@@ -386,20 +388,34 @@ class _admin_loginState extends State<user_editProfile>
                                     left: 00.0, right: 10.0),
                               ),
                               new Expanded(
-                                child: TextField(
-                                  obscureText: _obscureText,
-                                  decoration: InputDecoration(
-                                    suffixIcon: IconButton(
-                                      icon: Icon(Icons.remove_red_eye),
-                                      iconSize: 18,
-                                      color: Colors.grey,
-                                      onPressed: _toggle,
+                                child: Form(
+                                  key: _pass1_key,
+                                  child: TextFormField(
+                                    onChanged: (value)
+                                    {
+                                      pass1 = value;
+                                    },
+                                    controller: pass1_controller,
+                                    validator: (value) {
+                                      if (value.isEmpty) {
+                                        return 'Please enter valid pass of length 7 minimum';
+                                      }
+                                      return null;
+                                    },
+                                    obscureText: _obscureText,
+                                    decoration: InputDecoration(
+                                      suffixIcon: IconButton(
+                                        icon: Icon(Icons.remove_red_eye),
+                                        iconSize: 18,
+                                        color: Colors.grey,
+                                        onPressed: _toggle,
+                                      ),
+                                      contentPadding: EdgeInsets.symmetric(
+                                          vertical: 15, horizontal: 0),
+                                      border: InputBorder.none,
+                                      hintText: '***********',
+                                      hintStyle: TextStyle(color: Colors.grey),
                                     ),
-                                    contentPadding: EdgeInsets.symmetric(
-                                        vertical: 15, horizontal: 0),
-                                    border: InputBorder.none,
-                                    hintText: '***********',
-                                    hintStyle: TextStyle(color: Colors.grey),
                                   ),
                                 ),
                               )
@@ -443,74 +459,34 @@ class _admin_loginState extends State<user_editProfile>
                                     left: 00.0, right: 10.0),
                               ),
                               new Expanded(
-                                child: TextField(
-                                  obscureText: _obscureText,
-                                  decoration: InputDecoration(
-                                    suffixIcon: IconButton(
-                                      icon: Icon(Icons.remove_red_eye),
-                                      iconSize: 18,
-                                      color: Colors.grey,
-                                      onPressed: _toggle,
+                                child: Form(
+                                  key: _pass2_key,
+                                  child: TextFormField(
+                                    controller: pass2_controller,
+                                    validator: (value) {
+                                      if (value.isEmpty) {
+                                        return 'Please enter valid pass of length 7 minimum';
+                                      }
+                                      return null;
+                                    },
+                                    onChanged: (value)
+                                    {
+                                      pass2 = value;
+                                    },
+                                    obscureText: _obscureText,
+                                    decoration: InputDecoration(
+                                      suffixIcon: IconButton(
+                                        icon: Icon(Icons.remove_red_eye),
+                                        iconSize: 18,
+                                        color: Colors.grey,
+                                        onPressed: _toggle,
+                                      ),
+                                      contentPadding: EdgeInsets.symmetric(
+                                          vertical: 15, horizontal: 0),
+                                      border: InputBorder.none,
+                                      hintText: '***********',
+                                      hintStyle: TextStyle(color: Colors.grey),
                                     ),
-                                    contentPadding: EdgeInsets.symmetric(
-                                        vertical: 15, horizontal: 0),
-                                    border: InputBorder.none,
-                                    hintText: '***********',
-                                    hintStyle: TextStyle(color: Colors.grey),
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 40.0),
-                          child: Text(
-                            "Email",
-                            style:
-                                TextStyle(color: Colors.grey, fontSize: 16.0),
-                          ),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(
-                              color: Colors.grey.withOpacity(0.5),
-                              width: 1.0,
-                            ),
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 10.0, horizontal: 20.0),
-                          child: Row(
-                            children: <Widget>[
-                              new Padding(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 10.0, horizontal: 15.0),
-                                child: Icon(
-                                  Icons.email,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              Container(
-                                height: 30.0,
-                                width: 1.0,
-                                color: Colors.grey.withOpacity(0.5),
-                                margin: const EdgeInsets.only(
-                                    left: 00.0, right: 10.0),
-                              ),
-                              new Expanded(
-                                child: TextField(
-                                  enabled: false,
-                                  onChanged: (value)
-                                  {
-                                    user_email = value;
-                                  },
-                                  controller: TextEditingController()..text = userdata == null ? "" : userdata["email"],
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: 'someone@gmail.com',
-                                    hintStyle: TextStyle(color: Colors.grey),
                                   ),
                                 ),
                               )
@@ -554,13 +530,15 @@ class _admin_loginState extends State<user_editProfile>
                                     left: 00.0, right: 10.0),
                               ),
                               new Expanded(
-                                  child: GestureDetector(
-                                onTap: () {
-                                  _selectDate(context);
-                                },
-                                child: Text(
-                                    "${selectedDate.toLocal()}".split(' ')[0]),
-                              ))
+                                child: GestureDetector(
+                                  onTap: ()
+                                  {
+                                    _selectDate(context);
+                                  },
+                                  child: Text("${selectedDate.toLocal()}"
+                                      .split(' ')[0]),
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -601,16 +579,25 @@ class _admin_loginState extends State<user_editProfile>
                                     left: 00.0, right: 10.0),
                               ),
                               new Expanded(
-                                child: TextField(
-                                  onChanged: (value)
-                                  {
-                                    home_town = value;
-                                  },
-                                  controller: TextEditingController()..text = home_town == null ?  userdata == null ? "" : userdata["home_town"] : home_town,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: "Pir Mahal,Toba tek Singh",
-                                    hintStyle: TextStyle(color: Colors.grey),
+                                child: Form(
+                                  key: _town_Key,
+                                  child: TextFormField(
+                                    validator: (value) {
+                                      if (value.isEmpty) {
+                                        return 'Please enter valid Address';
+                                      }
+                                      return null;
+                                    },
+                                    onChanged: (value) {
+                                      hometown = value;
+                                    },
+                                    controller: town_controller
+                                      ..text = hometown == null ? "" : hometown,
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: "Pir Mahal,Toba tek Singh",
+                                      hintStyle: TextStyle(color: Colors.grey),
+                                    ),
                                   ),
                                 ),
                               )
@@ -657,7 +644,7 @@ class _admin_loginState extends State<user_editProfile>
                           child: Text(
                             "Area You Love",
                             style:
-                            TextStyle(color: Colors.grey, fontSize: 16.0),
+                                TextStyle(color: Colors.grey, fontSize: 16.0),
                           ),
                         ),
                         Container(
@@ -689,16 +676,25 @@ class _admin_loginState extends State<user_editProfile>
                                     left: 00.0, right: 10.0),
                               ),
                               new Expanded(
-                                child: TextField(
-                                  onChanged: (value)
-                                  {
-                                    area = value;
-                                  },
-                                  controller: TextEditingController()..text = area == null ? userdata == null ? "" : userdata["area"] : area,
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: 'I love Myself',
-                                    hintStyle: TextStyle(color: Colors.grey),
+                                child: Form(
+                                  key: _area_Key,
+                                  child: TextFormField(
+                                    validator: (value) {
+                                      if (value.isEmpty) {
+                                        return 'Please enter Area of Interest';
+                                      }
+                                      return null;
+                                    },
+                                    onChanged: (value) {
+                                      area = value;
+                                    },
+                                    controller: area_controller
+                                      ..text = area == null ? "" : area,
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: 'I love Myself',
+                                      hintStyle: TextStyle(color: Colors.grey),
+                                    ),
                                   ),
                                 ),
                               )
@@ -710,27 +706,44 @@ class _admin_loginState extends State<user_editProfile>
                         ),
                         Center(
                           child: GestureDetector(
-                            onTap: () async {
-                              user = await FirebaseAuth.instance.currentUser();
-                              Firestore firestore = Firestore.instance;
-                              if(imagepicked)
+                            onTap: () async
+                            {
+                              if (_name_Key.currentState.validate() &&
+                                  _area_Key.currentState.validate() &&
+                                  _pass1_key.currentState.validate() &&
+                                  _pass2_key.currentState.validate() &&
+                                  _town_Key.currentState.validate())
+                              {
+                                if (pass1 == pass2)
                                 {
-                                  await uploadImage(context);
+                                  user = await FirebaseAuth.instance.currentUser();
+                                  if (imagepicked)
+                                  {
+                                    await uploadImage(context);
+                                    await downloadImage();
+                                  }
+                                  await firestoreinstance
+                                      .collection("users")
+                                      .document(user.email)
+                                      .updateData({
+                                    "fullname": name,
+                                    "birth_date": selectedDate,
+                                    "home_town": hometown,
+                                    "gender": gendertype.toString(),
+                                    "area": area,
+                                  });
+                                  print("User Stored on firestore");
+                                  await Storepref();
+                                  user.updatePassword(pass1).whenComplete(() => print("Password Updated"));
+                                  await FirebaseAuth.instance.signOut();
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => user_login()));
+                                } else {
+                                  ShowToast("Pass Doesn't Match");
                                 }
-                              await firestore.collection("users").document(user.email).updateData(
-                                {
-                                  "fullname" : fullname,
-                                  "birth_date" : selectedDate,
-                                  "home_town" : home_town,
-                                  "gender" : gendertype.toString(),
-                                  "area" : area,
-                                }
-                              );
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          user_navigation_bar()));
+                              }
                             },
                             child: Container(
                               width: width / 1.2,

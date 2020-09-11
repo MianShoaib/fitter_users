@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'user_Signup2.dart';
 import 'user_login.dart';
@@ -11,6 +12,17 @@ class user_SignUp extends StatefulWidget {
 }
 
 class _user_signupState extends State<user_SignUp> {
+  bool genderselected = false, dateselected = false, imagepicked = false;
+  var name_controller = TextEditingController(),
+      email_controller = TextEditingController(),
+      pass_controller = TextEditingController(),
+      home_controller = TextEditingController();
+
+  final _name_Key = GlobalKey<FormState>(),
+      _email_Key = GlobalKey<FormState>(),
+      _pass_Key = GlobalKey<FormState>(),
+      _home_key = GlobalKey<FormState>();
+
   String fullname = "", email = "", pass = "", hometown = "";
 
   DateTime selectedDate = DateTime.now();
@@ -20,10 +32,22 @@ class _user_signupState extends State<user_SignUp> {
         initialDate: selectedDate,
         firstDate: DateTime(1990, 8),
         lastDate: DateTime(2101));
-    if (picked != null && picked != selectedDate)
+    if (picked != null && picked != selectedDate) {
       setState(() {
         selectedDate = picked;
+        dateselected = true;
       });
+    }
+  }
+
+  void ShowToast(String message) {
+    Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.purple.shade300,
+        textColor: Colors.white);
   }
 
   var gendertype = "1";
@@ -54,6 +78,7 @@ class _user_signupState extends State<user_SignUp> {
         ],
         onChanged: (value) {
           setState(() {
+            genderselected = true;
             gendertype = value;
             print(gendertype);
           });
@@ -61,39 +86,13 @@ class _user_signupState extends State<user_SignUp> {
         value: gendertype,
       );
 
-  //User Type DropDown Menu
-  /*var usertype = "1";
-  DropdownButton userTpe() => DropdownButton<String>(
-    icon: Icon(Icons.arrow_drop_down_circle,size: 18,),
-    items: [
-      DropdownMenuItem<String>(
-        value: "1",
-        child: Text(
-          "Worker",
-        ),
-      ),
-      DropdownMenuItem<String>(
-        value: "2",
-        child: Text(
-          "User",
-        ),
-      ),
-    ],
-    onChanged: (value) {
-      setState(() {
-        usertype = value;
-        print(usertype);
-      });
-    },
-    value: usertype,
-  );*/
-
   File _image;
   var pickedFile;
   final picker = ImagePicker();
   Future getImage() async {
     pickedFile = await picker.getImage(source: ImageSource.gallery);
     setState(() {
+      imagepicked = true;
       _image = File(pickedFile.path);
     });
   }
@@ -211,8 +210,8 @@ class _user_signupState extends State<user_SignUp> {
                           height: height / 60,
                         ),
                         GestureDetector(
-                            onTap: getImage,
-                            child: Row(
+                          onTap: getImage,
+                          child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: <Widget>[
@@ -277,14 +276,24 @@ class _user_signupState extends State<user_SignUp> {
                                     left: 00.0, right: 10.0),
                               ),
                               new Expanded(
-                                child: TextField(
-                                  onChanged: (value) {
-                                    fullname = value;
-                                  },
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: 'Luqman Asif',
-                                    hintStyle: TextStyle(color: Colors.grey),
+                                child: Form(
+                                  key: _name_Key,
+                                  child: TextFormField(
+                                    controller: name_controller,
+                                    onChanged: (value) {
+                                      fullname = value;
+                                    },
+                                    validator: (value) {
+                                      if (value.isEmpty) {
+                                        return 'Please enter Full Name';
+                                      }
+                                      return null;
+                                    },
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: 'Luqman Asif',
+                                      hintStyle: TextStyle(color: Colors.grey),
+                                    ),
                                   ),
                                 ),
                               )
@@ -329,14 +338,24 @@ class _user_signupState extends State<user_SignUp> {
                                     left: 00.0, right: 10.0),
                               ),
                               new Expanded(
-                                child: TextField(
-                                  onChanged: (value) {
-                                    email = value;
-                                  },
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: 'luqman.edu303@gmail.com',
-                                    hintStyle: TextStyle(color: Colors.grey),
+                                child: Form(
+                                  key: _email_Key,
+                                  child: TextFormField(
+                                    controller: email_controller,
+                                    onChanged: (value) {
+                                      email = value;
+                                    },
+                                    validator: (value) {
+                                      if (value.isEmpty) {
+                                        return 'Please enter valid email';
+                                      }
+                                      return null;
+                                    },
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: 'luqman.edu303@gmail.com',
+                                      hintStyle: TextStyle(color: Colors.grey),
+                                    ),
                                   ),
                                 ),
                               )
@@ -381,23 +400,33 @@ class _user_signupState extends State<user_SignUp> {
                                     left: 00.0, right: 10.0),
                               ),
                               new Expanded(
-                                child: TextField(
-                                  onChanged: (value) {
-                                    pass = value;
-                                  },
-                                  obscureText: _obscureText,
-                                  decoration: InputDecoration(
-                                    suffixIcon: IconButton(
-                                      icon: Icon(Icons.remove_red_eye),
-                                      iconSize: 18,
-                                      color: Colors.grey,
-                                      onPressed: _toggle,
+                                child: Form(
+                                  key: _pass_Key,
+                                  child: TextFormField(
+                                    controller: pass_controller,
+                                    onChanged: (value) {
+                                      pass = value;
+                                    },
+                                    validator: (value) {
+                                      if (value.isEmpty) {
+                                        return 'Please enter Password';
+                                      }
+                                      return null;
+                                    },
+                                    obscureText: _obscureText,
+                                    decoration: InputDecoration(
+                                      suffixIcon: IconButton(
+                                        icon: Icon(Icons.remove_red_eye),
+                                        iconSize: 18,
+                                        color: Colors.grey,
+                                        onPressed: _toggle,
+                                      ),
+                                      contentPadding: EdgeInsets.symmetric(
+                                          vertical: 15, horizontal: 0),
+                                      border: InputBorder.none,
+                                      hintText: '***********',
+                                      hintStyle: TextStyle(color: Colors.grey),
                                     ),
-                                    contentPadding: EdgeInsets.symmetric(
-                                        vertical: 15, horizontal: 0),
-                                    border: InputBorder.none,
-                                    hintText: '***********',
-                                    hintStyle: TextStyle(color: Colors.grey),
                                   ),
                                 ),
                               )
@@ -490,14 +519,24 @@ class _user_signupState extends State<user_SignUp> {
                                     left: 00.0, right: 10.0),
                               ),
                               new Expanded(
-                                child: TextField(
-                                  onChanged: (value) {
-                                    hometown = value;
-                                  },
-                                  decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: 'Pir Mahal,Toba Tek Singh',
-                                    hintStyle: TextStyle(color: Colors.grey),
+                                child: Form(
+                                  key: _home_key,
+                                  child: TextFormField(
+                                    controller: home_controller,
+                                    onChanged: (value) {
+                                      hometown = value;
+                                    },
+                                    validator: (value) {
+                                      if (value.isEmpty) {
+                                        return 'Please enter Home Town';
+                                      }
+                                      return null;
+                                    },
+                                    decoration: InputDecoration(
+                                      border: InputBorder.none,
+                                      hintText: 'Pir Mahal,Toba Tek Singh',
+                                      hintStyle: TextStyle(color: Colors.grey),
+                                    ),
                                   ),
                                 ),
                               )
@@ -590,18 +629,31 @@ class _user_signupState extends State<user_SignUp> {
                         Center(
                           child: GestureDetector(
                             onTap: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => user_SignUp2(
-                                        Fullname: fullname,
-                                        User_Email: email,
-                                        User_Pass: pass,
-                                        Birth_Date: selectedDate,
-                                        Gender: gendertype,
-                                        Home_Town: hometown,
-                                        Image_File: _image,
-                                          )));
+                              if (_name_Key.currentState.validate() &&
+                                  _home_key.currentState.validate() &&
+                                  _pass_Key.currentState.validate() &&
+                                  _home_key.currentState.validate()) {
+                                if (!imagepicked) {
+                                  ShowToast('Please pick a Profile Image');
+                                } else if (!dateselected) {
+                                  ShowToast('Please set Birth Date');
+                                } else if (!genderselected) {
+                                  ShowToast('Please select Gender');
+                                } else {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => user_SignUp2(
+                                                Fullname: fullname,
+                                                User_Email: email,
+                                                User_Pass: pass,
+                                                Birth_Date: selectedDate,
+                                                Gender: gendertype,
+                                                Home_Town: hometown,
+                                                Image_File: _image,
+                                              )));
+                                }
+                              }
                             },
                             child: Container(
                               width: width / 1.2,

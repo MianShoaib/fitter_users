@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'drawer.dart';
 import 'package:flutter_range_slider/flutter_range_slider.dart' as frs;
 
@@ -15,10 +16,11 @@ class user_search extends StatefulWidget
 class user_reviewState extends State<user_search>
 {
   FirebaseUser user;
-  DocumentSnapshot userdata;
+  String name, url;
   var _downloadURL;
   final controller = PageController();
   String time;
+  SharedPreferences _pref;
 
   DateTime selectedDate = DateTime.now();
   Future<Null> _selectDate(BuildContext context) async {
@@ -98,36 +100,13 @@ class user_reviewState extends State<user_search>
     }
       );
 
-  Future downloadImage() async
-  {
-    String downloadAddress = await FirebaseStorage.instance.ref().child(userdata["photourl"]).getDownloadURL();
-    print(downloadAddress);
-    setState(() {
-      _downloadURL = downloadAddress;
-    });
-  }
-
-  void getData() async
-  {
-    user = await FirebaseAuth.instance.currentUser();
-    Firestore firestore = Firestore.instance;
-    await firestore.collection("users").document(user.email)
-        .get()
-        .then((doc) {
-      if (doc.exists) {
-        userdata = doc;
-      }
-      else {
-        // doc.data() will be undefined in this case
-        print("No such document!");
-      }
-    });
-  }
-
   void Init() async
   {
-    await getData();
-    await downloadImage();
+    _pref = await SharedPreferences.getInstance();
+    setState(() {
+      name = _pref.getString("fullname");
+      url = _pref.getString("photourl");
+    });
   }
 
   @override
@@ -154,7 +133,7 @@ class user_reviewState extends State<user_search>
           elevation: 0,
 
         ),
-        drawer: SideDrawer(downloadURL: _downloadURL, userdata: userdata, height: height, width: width),
+        drawer: SideDrawer(downloadURL: url, name: name, height: height, width: width),
         backgroundColor: Color(0xffe3e1e1),
         body: SingleChildScrollView(
           child: Column(
