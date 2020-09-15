@@ -1,15 +1,12 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fitter_users/User_UI/user_home.dart';
 import 'package:fitter_users/User_UI/user_login.dart';
+import 'package:fitter_users/User_UI/user_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:dots_indicator/dots_indicator.dart';
-import 'user_landingPage.dart';
 import 'user_walkthrough_1.dart';
 import 'user_walkthrough_2.dart';
 import 'user_walkthrough_3.dart';
-
-
-
-
-
 class user_walkthrough extends StatefulWidget {
   @override
   _WelcomeState createState() => _WelcomeState();
@@ -71,12 +68,23 @@ class _WelcomeState extends State<user_walkthrough> {
       child: Padding(
         padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.25),
         child: GestureDetector(
-          onTap: ()
+          onTap: () async
           {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => user_login()));
+            FirebaseUser user = await FirebaseAuth.instance.currentUser();
+            if (user != null)
+            {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          user_navigation_bar()));
+            } else {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          user_login()));
+            }
           },
           child: Container(
           width: 178.0,

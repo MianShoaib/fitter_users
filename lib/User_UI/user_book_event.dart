@@ -4,6 +4,7 @@ import 'package:fitter_users/User_Models/fitter_event_model.dart';
 import 'package:fitter_users/User_UI/user_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class book_event extends StatefulWidget {
@@ -27,6 +28,16 @@ class book_eventState extends State<book_event> {
   String date = '18.1.2021';
   String status = 'Mininum';
   String people = '6';
+
+  void ShowToast(String message) {
+    Fluttertoast.showToast(
+        msg: message,
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.purple.shade300,
+        textColor: Colors.white);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -464,35 +475,8 @@ class book_eventState extends State<book_event> {
                     height: height / 60,
                   ),
 
-                  booked != true
-                      ? Center(
-                          child: Container(
-                            width: width / 1.2,
-                            height: 50.0,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(100.0),
-                              gradient: LinearGradient(
-                                begin: Alignment(0.0, -1.0),
-                                end: Alignment(0.0, 1.0),
-                                colors: [
-                                  const Color(0xff9847b7),
-                                  const Color(0xffbc5dff)
-                                ],
-                                stops: [0.0, 1.0],
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Already Booked",
-                                style: TextStyle(
-                                    color: Colors.white70,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16),
-                              ),
-                            ),
-                          ),
-                        )
-                      : Center(
+
+                  Center(
                           child: GestureDetector(
                             onTap: () {
                               return showDialog(
@@ -538,53 +522,56 @@ class book_eventState extends State<book_event> {
                                                           //letterSpacing: 1
                                                           ),
                                                     ),
-                                                    onPressed: () async {
+                                                    onPressed: () async
+                                                    {
                                                       print("Book event");
-                                                      String name,
-                                                          desc,
-                                                          rating,
-                                                          url,
-                                                          email;
-                                                      _pref =
-                                                          await SharedPreferences
-                                                              .getInstance();
-                                                      name = _pref.getString(
-                                                          "fullname");
-                                                      url = _pref.getString(
-                                                          "photourl");
-                                                      email = _pref
-                                                          .getString("email");
-                                                      Firestore firestore =
-                                                          Firestore.instance;
-                                                      name = _pref.getString(
-                                                          "fullname");
-                                                      url = _pref.getString(
-                                                          "photourl");
-                                                      firestore
-                                                          .collection("Events")
-                                                          .document(
-                                                              event.eventID1)
-                                                          .collection("Event")
-                                                          .document(
-                                                              event.eventID2)
-                                                          .collection(
-                                                              "participants")
-                                                          .document()
-                                                          .setData({
-                                                        "name": name,
-                                                        "desc": desc,
-                                                        "rating": rating,
-                                                        "url": url,
-                                                      });
-                                                      firestore
-                                                          .collection("users")
-                                                          .document(email)
-                                                          .collection("Events")
-                                                          .document()
-                                                          .setData({
-                                                        "eventID":
-                                                            event.eventID1
-                                                      });
+                                                      Navigator.pop(context);
+                                                      String name, desc, rating, url, email;
+                                                      _pref = await SharedPreferences.getInstance();
+                                                      name = _pref.getString("fullname");
+                                                      url = _pref.getString("photourl");
+                                                      email = _pref.getString("email");
+                                                      name = _pref.getString("fullname");
+                                                      url = _pref.getString("photourl");
+                                                      Firestore firestore = Firestore.instance;
+                                                      QuerySnapshot events = await firestore.collection("users").document(email).collection("Events").getDocuments();
+                                                      var event_docs = await events.documents;
+                                                      for (var each in event_docs)
+                                                        {
+                                                          if(each.data["eventID"] == event.eventID1)
+                                                            {
+                                                              ShowToast("Event Already Booked.");
+                                                              break;
+                                                            }
+                                                          else
+                                                            {
+                                                              firestore.collection("Events").document(event.eventID1).collection("Event").document(
+                                                                  event.eventID2)
+                                                                  .collection(
+                                                                  "participants")
+                                                                  .document()
+                                                                  .setData({
+                                                                "name": name,
+                                                                "desc": desc,
+                                                                "rating": rating,
+                                                                "url": url,
+                                                              });
+                                                              firestore
+                                                                  .collection("users")
+                                                                  .document(email)
+                                                                  .collection("Events")
+                                                                  .document()
+                                                                  .setData({
+                                                                "eventID":
+                                                                event.eventID1
+                                                              });
+                                                              Navigator.push(
+                                                                  context,
+                                                                  MaterialPageRoute(
+                                                                      builder: (context) =>
+                                                                          user_navigation_bar()));
+                                                            }
+                                                        }
                                                       Navigator.push(
                                                           context,
                                                           MaterialPageRoute(

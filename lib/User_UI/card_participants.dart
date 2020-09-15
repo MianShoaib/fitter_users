@@ -1,5 +1,5 @@
-import 'package:fitter_users/User_Models/fitter_participants_model.dart';
 import 'package:flutter/material.dart';
+import 'package:fitter_users/User_Models/fitter_participants_model.dart';
 
 class card_participants extends StatelessWidget {
   const card_participants({
@@ -33,14 +33,14 @@ class card_participants extends StatelessWidget {
                   children: <Widget>[
                     participant.photourl == null
                         ? CircleAvatar(
-                            backgroundImage:
-                                AssetImage("images/user/heart.png"),
-                            radius: 32,
-                          )
+                      backgroundImage:
+                      AssetImage("images/user/heart.png"),
+                      radius: 32,
+                    )
                         : CircleAvatar(
-                            backgroundImage: NetworkImage(participant.photourl),
-                            radius: 32,
-                          ),
+                      backgroundImage: NetworkImage(participant.photourl),
+                      radius: 32,
+                    ),
                     SizedBox(
                       height: height / 120,
                     ),

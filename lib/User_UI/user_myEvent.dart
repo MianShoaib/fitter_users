@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fitter_users/User_Models/fitter_event_model.dart';
 import 'package:fitter_users/User_Models/fitter_participants_model.dart';
 import 'package:fitter_users/User_UI/card_event_vertical.dart';
-import 'package:fitter_users/User_UI/user_review.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -130,7 +129,7 @@ class worker_homeState extends State<user_myEvent>
 
             Container(
 //              color: Colors.red,
-              height: height/2.5,
+              height: height/(2.5 / list_of_events.length),
 //                      width: width / 1,
               child: ListView.builder(
                 physics: NeverScrollableScrollPhysics(),

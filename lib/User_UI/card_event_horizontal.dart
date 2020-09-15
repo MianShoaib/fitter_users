@@ -28,11 +28,28 @@ class card_event_horizontal extends StatelessWidget {
               MainAxisAlignment.center,
 //                                        crossAxisAslignment: CrossAxisAlignment.center,
               children: <Widget>[
+                event.Worker_url == null ?
+                CircleAvatar(
+                  backgroundImage: AssetImage(
+                      'images/user/pic1.JPG'),
+                  radius: 26,
+                )
+                :
                 CircleAvatar(
                   backgroundImage: NetworkImage(
                       event.Worker_url),
                   radius: 26,
                 ),
+                event.Worker_name == null ?
+                Text(
+                  'Invalid User',
+                  style: TextStyle(
+                      fontSize: height / 50,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xff413564)),
+                  textAlign: TextAlign.center,
+                )
+                    :
                 Text(
                   event.Worker_name,
                   style: TextStyle(

@@ -6,16 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'user_editProfile.dart';
-import 'user_login.dart';
-import 'user_myEvent.dart';
-import 'user_privacy_page.dart';
-import 'user_purse.dart';
-import 'user_serviceAgrement.dart';
-
-
-
-
 class user_notification extends StatefulWidget {
   @override
   notificationState createState() => notificationState();
@@ -31,62 +21,36 @@ class Post {
 class notificationState extends State<user_notification>
 {
   SharedPreferences _pref;
-  String name,url;
+  String name,url,email;
   FirebaseUser user;
   DocumentSnapshot userdata;
-
-  List listdata = [
-    listItems(
-      personname: "Sohail khan",
-      imageUrl: "images/user/pic1.JPG",
-      description: "start following You",
-      notify_time: "2 hour ago",
-      address: "TTS",
-    ),
-
-    listItems(
-      personname: "Ali Talib",
-      imageUrl: "images/user/pic1.JPG",
-      description: "start following You",
-      notify_time: "3 hour ago",
-      address: "Kashmir",
-    ),
-
-
-    listItems(
-      personname: "Talha khan",
-      imageUrl: "images/user/pic1.JPG",
-      description: "start following You",
-      notify_time: "2 Nov",
-      address: "Chakwal",
-    ),
-
-    listItems(
-      personname: "Rehan khan",
-      imageUrl: "images/user/pic1.JPG",
-      description: "start following You",
-      notify_time: "12 Oct",
-      address: "Peshawer",
-    ),
-
-    listItems(
-      personname: "Luqman Asif",
-      imageUrl: "images/user/pic1.JPG",
-      description: "start following You",
-      notify_time: "18 sep",
-      address: "Fasilbad",
-    ),
-
-  ];
-
-
+  List<Requests> listdata = List();
   void Init() async
   {
     _pref = await SharedPreferences.getInstance();
     setState(() {
       name = _pref.getString("fullname");
       url = _pref.getString("photourl");
+      email = _pref.getString("email");
     });
+
+    Firestore firestore = Firestore.instance;
+    QuerySnapshot user_events_documents = await firestore.collection("users").document(email).collection("Requests").getDocuments();
+    List<DocumentSnapshot> user_events_docs = await user_events_documents.documents;
+    for(var each in user_events_docs)
+    {
+      String status = each.data["status"];
+      if(status == "0")
+        {
+          Requests request = new Requests(
+            personname: each.data["name"],
+            imageUrl: each.data["photourl"],
+              email: each.data["email"]
+          );
+          listdata.add(request);
+        }
+        setState(() {});
+    }
   }
 
   @override
@@ -143,17 +107,14 @@ class notificationState extends State<user_notification>
                     SizedBox(
                       height: height / 20,
                     ),
-
-
-
                     Container(
 //                      color: Color(0xffF5F5F5),
                       height: height / 1.3,
 //                      width: width / 1,
                       child: ListView.builder(
-
                         itemCount: listdata.length,
-                        itemBuilder: (context, index) {
+                        itemBuilder: (context, index)
+                        {
                           return Card(
                             color: Color(0xffefefef),
                             elevation: 1,
@@ -172,7 +133,9 @@ class notificationState extends State<user_notification>
                                   height: 50,
                                   child: CircleAvatar(
                                     backgroundImage:
-                                    AssetImage(listdata[index].imageUrl),
+                                    listdata[index].imageUrl == null
+                                        ? AssetImage('images/user/pic1.JPG')
+                                    : NetworkImage(listdata[index].imageUrl),
                                     radius: 26,
                                   ),
                                 ),
@@ -234,18 +197,14 @@ class notificationState extends State<user_notification>
   }
 }
 
-class listItems {
+class Requests {
   String personname;
   String imageUrl;
-  String description;
-  String notify_time;
-  String address;
+  String email;
 
-  listItems({
+  Requests({
     this.personname,
     this.imageUrl,
-    this.description,
-    this.notify_time,
-    this.address,
+    this.email,
   });
 }

@@ -45,11 +45,28 @@ class Event_Card extends StatelessWidget
                   crossAxisAlignment:
                   CrossAxisAlignment.center,
                   children: <Widget>[
+                    event.Worker_url == null ?
+                    CircleAvatar(
+                      backgroundImage: AssetImage(
+                          'images/user/pic1.JPG'),
+                      radius: 26,
+                    )
+                        :
                     CircleAvatar(
                       backgroundImage: NetworkImage(
                           event.Worker_url),
                       radius: 26,
                     ),
+                    event.Worker_name == null ?
+                    Text(
+                      'Invalid User',
+                      style: TextStyle(
+                          fontSize: height / 50,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xff413564)),
+                      textAlign: TextAlign.center,
+                    )
+                    :
                     Text(
                       event.Worker_name,
                       style: TextStyle(
@@ -145,7 +162,7 @@ class Event_Card extends StatelessWidget
                         size: 14,
                       ),
                       Text(
-                        event.time1.toString(),
+                          '${event.time1.toString().split(" ")[1].substring(0, 5)} TO ${event.time2.toString().split(" ")[1].substring(0, 5)}',
                         style: TextStyle(
                             fontSize: height / 56,
                             fontWeight: FontWeight.w500,
