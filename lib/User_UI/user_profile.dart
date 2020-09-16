@@ -242,7 +242,7 @@ class Profile_State extends State<user_profile>
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => user_friends()));
+                                builder: (context) => user_friends(email: email,)));
                       },
                       child: Column(
                         children: <Widget>[

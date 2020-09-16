@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:fitter_users/User_Models/fitter_friend_model.dart';
+import 'package:fitter_users/User_Models/fitter_user_model.dart';
 import 'package:fitter_users/User_UI/drawer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +26,7 @@ class notificationState extends State<user_notification>
   String name,url,email;
   FirebaseUser user;
   DocumentSnapshot userdata;
-  List<Requests> listdata = List();
+  List<Friends> listdata = List();
   void Init() async
   {
     _pref = await SharedPreferences.getInstance();
@@ -33,24 +35,63 @@ class notificationState extends State<user_notification>
       url = _pref.getString("photourl");
       email = _pref.getString("email");
     });
+    getRequests();
+  }
 
+
+  Future getRequests() async
+  {
+    print("Getting Requests");
+    Firestore firestore = Firestore.instance;
+    QuerySnapshot user_events_documents = await firestore.collection("users").document(email).collection("Requests").getDocuments();
+    List<DocumentSnapshot> user_events_docs = await user_events_documents.documents;
+    print(user_events_docs.length);
+    for(var each in user_events_docs)
+    {
+      print(each.data["email"]);
+      print(each.data["name"]);
+      print(each.data["photourl"]);
+      print(each.data["status"]);
+      String status = each.data["status"];
+      if(status == "0")
+      {
+        Friends request = new Friends(
+            personname: each.data["name"],
+            imageUrl: each.data["photourl"],
+            email: each.data["email"]
+        );
+        listdata.add(request);
+      }
+      setState(() {});
+    }
+  }
+
+  Future acceptRequest(String request_mail) async
+  {
     Firestore firestore = Firestore.instance;
     QuerySnapshot user_events_documents = await firestore.collection("users").document(email).collection("Requests").getDocuments();
     List<DocumentSnapshot> user_events_docs = await user_events_documents.documents;
     for(var each in user_events_docs)
     {
-      String status = each.data["status"];
-      if(status == "0")
-        {
-          Requests request = new Requests(
-            personname: each.data["name"],
-            imageUrl: each.data["photourl"],
-              email: each.data["email"]
-          );
-          listdata.add(request);
-        }
-        setState(() {});
+      if(request_mail == each.data["email"])
+      {
+        await each.reference.updateData({
+          "status" : "1"
+        });
+        await firestore.collection("users").document(email).collection("Friends").document().setData({
+          "email" : each.data["email"],
+          "name" : each.data["name"],
+          "photourl" : each.data["photourl"],
+          "status" : "1",
+        });
+        each.reference.delete();
+      }
+      setState(() {});
+      break;
     }
+    listdata.clear();
+    FirebaseUser user = await FirebaseAuth.instance.currentUser();
+    AppUser.UpdatePrefences(user);
   }
 
   @override
@@ -151,12 +192,9 @@ class notificationState extends State<user_notification>
                                   //textAlign: TextAlign.center,
                                 ),
                                 trailing:  GestureDetector(
-                                  onTap: ()
+                                  onTap: () async
                                   {
-//                                  Navigator.push(
-//                                      context,
-//                                      MaterialPageRoute(
-//                                          builder: (context) => user_editProfile()));
+                                    acceptRequest(listdata[index].email);
                                   },
                                   child: Container(
                                     width: width/5,
@@ -195,16 +233,4 @@ class notificationState extends State<user_notification>
       ),
     );
   }
-}
-
-class Requests {
-  String personname;
-  String imageUrl;
-  String email;
-
-  Requests({
-    this.personname,
-    this.imageUrl,
-    this.email,
-  });
 }

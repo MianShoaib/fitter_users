@@ -5,7 +5,8 @@ import 'package:flutter/material.dart';
 import 'user_editProfile.dart';
 
 
-class friend_profile extends StatefulWidget {
+class friend_profile extends StatefulWidget
+{
   @override
   Profile_State createState() => Profile_State();
 }
@@ -17,13 +18,11 @@ class Post {
   Post(this.title, this.body);
 }
 
-class Profile_State extends State<friend_profile> {
-
+class Profile_State extends State<friend_profile>
+{
   int worker = 22;
   int friends = 324;
   int followers = 681;
-
-
   List listdata = [
     listItems(
       heading:"The Story behind the space X",

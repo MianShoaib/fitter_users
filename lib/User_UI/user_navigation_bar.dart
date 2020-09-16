@@ -18,7 +18,8 @@ class user_navigation_bar extends StatefulWidget {
     return NavigationBar();
   }
 }
-class NavigationBar extends State<user_navigation_bar> {
+class NavigationBar extends State<user_navigation_bar>
+{
   int _selectedTab = 0;
   final _pageOptions = [
 

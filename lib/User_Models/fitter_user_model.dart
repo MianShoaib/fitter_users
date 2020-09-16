@@ -113,6 +113,14 @@ class AppUser
     print("updating Preferences");
     final firestoreInstance = Firestore.instance;
     var document = await firestoreInstance.collection('users').document(firebaseUser.email);
+    QuerySnapshot friends_count = await document.collection("Friends").getDocuments();
+    List<DocumentSnapshot> friends = await friends_count.documents;
+    QuerySnapshot workers_count = await document.collection("Workers").getDocuments();
+    List<DocumentSnapshot> workers = await workers_count.documents;
+    document.updateData({
+      "workers" : workers.length.toString(),
+      "friends" : friends.length.toString(),
+    });
     document.get().then((value) async
     {
       _pref.setString("app_user_type","User");

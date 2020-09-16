@@ -12,15 +12,16 @@ import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class user_home extends StatefulWidget {
+class user_home extends StatefulWidget
+{
   @override
   worker_homeState createState() => worker_homeState();
 }
 
-class Post {
+class Post
+{
   final String title;
   final String body;
-
   Post(this.title, this.body);
 }
 
@@ -36,7 +37,8 @@ class worker_homeState extends State<user_home>
     String todays_Date = today_Date.toString().split(" ")[0];
     print(todays_Date);
     _pref = await SharedPreferences.getInstance();
-    setState(() {
+    setState(()
+    {
       name = _pref.getString("fullname");
       url = _pref.getString("photourl");
     });

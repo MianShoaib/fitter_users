@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:fitter_users/User_Models/fitter_friend_model.dart';
 import 'package:fitter_users/User_Models/fitter_lesson_model.dart';
 import 'package:fitter_users/User_Models/fitter_worker_model.dart';
+import 'package:fitter_users/User_UI/user_findfriends.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -21,9 +23,10 @@ class user_reviewState extends State<user_search> {
   List<Worker> loved_list = List();
   List<Worker> recommended_list = List();
   List<Worker> highrated_list = List();
+  List<Friends> friends_list = List();
   final controller = PageController();
   String time;
-  bool lessonchoosed = false;
+  bool lessonchoosed = true;
   SharedPreferences _pref;
 
   DateTime selectedDate = DateTime.now();
@@ -88,8 +91,7 @@ class user_reviewState extends State<user_search> {
           unselectedLabelStyle: TextStyle(fontSize: 14),
           onTap: (index) {
             var content = "";
-            switch (index)
-            {
+            switch (index) {
               case 0:
                 setState(() {
                   lessonchoosed = true;
@@ -134,8 +136,7 @@ class user_reviewState extends State<user_search> {
         String email = each.data["worker"];
         DocumentReference worker_docs =
             await firestore.collection("workers").document(email);
-        await worker_docs.get().then((value)
-        {
+        await worker_docs.get().then((value) {
           Name = value.data["fullname"].toString();
           Url = value.data["photourl"];
         });
@@ -157,7 +158,6 @@ class user_reviewState extends State<user_search> {
     List<DocumentSnapshot> user_worker_docs =
         await user_worker_documents.documents;
     for (var each in user_worker_docs) {
-      String Name, Title, Url;
       Worker worker = new Worker(
         name: each.data["name"],
         description: each.data["self"],
@@ -171,22 +171,24 @@ class user_reviewState extends State<user_search> {
     ////////////////        RECOMMENDED   WORKERS      /////////////////
     ////////////////////////////////////////////////////////////////////
 
-    QuerySnapshot user_events_documents = await firestore.collection("users").document(email).collection("Events").getDocuments();
-    List<DocumentSnapshot> user_events_docs = await user_events_documents.documents;
-    for(var each in user_events_docs)
-    {
+    QuerySnapshot user_events_documents = await firestore
+        .collection("users")
+        .document(email)
+        .collection("Events")
+        .getDocuments();
+    List<DocumentSnapshot> user_events_docs =
+        await user_events_documents.documents;
+    for (var each in user_events_docs) {
       String email = each.data["worker"];
       print("Email--->>>" + email);
-      DocumentReference user_recommended_worker_documents = await firestore
-          .collection("workers").document(email);
-      user_recommended_worker_documents.get().then((value)
-      {
+      DocumentReference user_recommended_worker_documents =
+          await firestore.collection("workers").document(email);
+      user_recommended_worker_documents.get().then((value) {
         Worker worker = new Worker(
             name: value.data["fullname"],
             description: value.data["self"],
             imageUrl: value.data["photourl"],
-            rating: value.data["rating"]
-        );
+            rating: value.data["rating"]);
         recommended_list.add(worker);
         setState(() {});
       });
@@ -196,29 +198,24 @@ class user_reviewState extends State<user_search> {
     ////////////////          HIGH RATED WORKERS      /////////////////
     ////////////////////////////////////////////////////////////////////
 
-    QuerySnapshot user_highrated_worker_documents = await firestore
-        .collection("workers")
-        .getDocuments();
+    QuerySnapshot user_highrated_worker_documents =
+        await firestore.collection("workers").getDocuments();
     List<DocumentSnapshot> user__highrated_worker_docs =
-    await user_highrated_worker_documents.documents;
-    for (var each in user__highrated_worker_docs)
-    {
+        await user_highrated_worker_documents.documents;
+    for (var each in user__highrated_worker_docs) {
       Worker worker = new Worker(
           name: each.data["fullname"],
           description: each.data["self"],
           imageUrl: each.data["photourl"],
-          rating: each.data["rating"]
-      );
+          rating: each.data["rating"]);
       highrated_list.add(worker);
       setState(() {});
     }
     Worker temp = new Worker();
-    for (int i = 1; i < highrated_list.length; i++)
-    {
-      for (int j = i; j > 0; j--)
-      {
-        if (int.parse(highrated_list[j].rating.toString()) > int.parse(highrated_list[j - 1].rating.toString()))
-        {
+    for (int i = 1; i < highrated_list.length; i++) {
+      for (int j = i; j > 0; j--) {
+        if (int.parse(highrated_list[j].rating.toString()) >
+            int.parse(highrated_list[j - 1].rating.toString())) {
           temp = highrated_list[j];
           highrated_list[j] = highrated_list[j - 1];
           highrated_list[j - 1] = temp;
@@ -226,6 +223,26 @@ class user_reviewState extends State<user_search> {
       }
     }
     setState(() {});
+
+    firestore = Firestore.instance;
+    QuerySnapshot user_requests_documents = await firestore
+        .collection("users")
+        .document(email)
+        .collection("Friends")
+        .getDocuments();
+    List<DocumentSnapshot> user_requests_docs =
+        await user_requests_documents.documents;
+    for (var each in user_requests_docs) {
+      String status = each.data["status"];
+      if (status == "1") {
+        Friends request = new Friends(
+            personname: each.data["name"],
+            imageUrl: each.data["photourl"],
+            email: each.data["email"]);
+        friends_list.add(request);
+      }
+      setState(() {});
+    }
   }
 
   @override
@@ -308,332 +325,366 @@ class user_reviewState extends State<user_search> {
                   ),
                   lessonchoosed == true
                       ? IconButton(
-                    onPressed: () {
-                      return showDialog(
-                        context: context,
-                        builder: (context) {
-                          List<bool> isSelected = [true, false, false];
-                          List<FocusNode> focusToggle;
-                          return AlertDialog(
-                              shape: RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(20))),
-                              content: Container(
-                                height: height / 1.2,
-                                child: SingleChildScrollView(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                          onPressed: () {
+                            return showDialog(
+                              context: context,
+                              builder: (context) {
+                                List<bool> isSelected = [true, false, false];
+                                List<FocusNode> focusToggle;
+                                return AlertDialog(
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(20))),
+                                    content: Container(
+                                      height: height / 1.2,
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
 //                                  mainAxisAlignment: MainAxisAlignment.start,
-                                    children: <Widget>[
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.end,
-                                        children: <Widget>[
-                                          Text(
-                                            "Filter",
-                                            style: TextStyle(
-                                                color: Colors.black,
-                                                fontSize: 22.0,
-                                                fontWeight: FontWeight.w600),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                          SizedBox(
-                                            width: width / 6,
-                                          ),
-                                          IconButton(
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                            icon: Icon(
-                                              Icons.close,
-                                              color: Colors.black,
-                                              size: 22,
+                                          children: <Widget>[
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: <Widget>[
+                                                Text(
+                                                  "Filter",
+                                                  style: TextStyle(
+                                                      color: Colors.black,
+                                                      fontSize: 22.0,
+                                                      fontWeight:
+                                                          FontWeight.w600),
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                                SizedBox(
+                                                  width: width / 6,
+                                                ),
+                                                IconButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(context);
+                                                  },
+                                                  icon: Icon(
+                                                    Icons.close,
+                                                    color: Colors.black,
+                                                    size: 22,
+                                                  ),
+                                                )
+                                              ],
                                             ),
-                                          )
-                                        ],
-                                      ),
-                                      SizedBox(
-                                        height: height / 40,
-                                      ),
-                                      Text(
-                                        "Select Time",
-                                        style: TextStyle(
-                                            color: Colors.grey, fontSize: 16.0),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(
-                                            left: 18.0, top: 2),
-                                        child: Container(
-                                          width: width / 1.2,
-                                          height: height / 20,
-                                          child: CupertinoTheme(
-                                            data: CupertinoThemeData(
-                                                barBackgroundColor:
-                                                    Colors.white,
-                                                textTheme:
-                                                    CupertinoTextThemeData(
-                                                        dateTimePickerTextStyle:
-                                                            TextStyle(
-                                                                color: Colors
-                                                                    .grey))),
-                                            child: CupertinoDatePicker(
-                                              backgroundColor:
-                                                  Colors.transparent,
-                                              mode:
-                                                  CupertinoDatePickerMode.time,
-                                              use24hFormat: false,
-                                              onDateTimeChanged: (asleep) {
-                                                time = asleep.toString();
-                                              },
+                                            SizedBox(
+                                              height: height / 40,
                                             ),
-                                          ),
-                                        ),
-                                      ),
-                                      Container(
-                                        margin: const EdgeInsets.symmetric(
-                                            vertical: 10.0, horizontal: 0.0),
-                                        child: TextField(
-                                          decoration: InputDecoration(
+                                            Text(
+                                              "Select Time",
+                                              style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 16.0),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 18.0, top: 2),
+                                              child: Container(
+                                                width: width / 1.2,
+                                                height: height / 20,
+                                                child: CupertinoTheme(
+                                                  data: CupertinoThemeData(
+                                                      barBackgroundColor:
+                                                          Colors.white,
+                                                      textTheme: CupertinoTextThemeData(
+                                                          dateTimePickerTextStyle:
+                                                              TextStyle(
+                                                                  color: Colors
+                                                                      .grey))),
+                                                  child: CupertinoDatePicker(
+                                                    backgroundColor:
+                                                        Colors.transparent,
+                                                    mode:
+                                                        CupertinoDatePickerMode
+                                                            .time,
+                                                    use24hFormat: false,
+                                                    onDateTimeChanged:
+                                                        (asleep) {
+                                                      time = asleep.toString();
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Container(
+                                              margin:
+                                                  const EdgeInsets.symmetric(
+                                                      vertical: 10.0,
+                                                      horizontal: 0.0),
+                                              child: TextField(
+                                                decoration: InputDecoration(
 //                      border: InputBorder.,
-                                            hintText: 'Select Location',
-                                            hintStyle:
-                                                TextStyle(color: Colors.grey),
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: height / 40,
-                                      ),
-                                      Text(
-                                        "Select Date",
-                                        style: TextStyle(
-                                            color: Colors.grey, fontSize: 16.0),
-                                      ),
-                                      SizedBox(
-                                        height: height / 60,
-                                      ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 16.0),
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            _selectDate(context);
-                                          },
-                                          child: Text(
-                                            "${selectedDate.toLocal()}"
-                                                .split(' ')[0],
-                                            style: TextStyle(
-                                              fontSize: height / 40,
+                                                  hintText: 'Select Location',
+                                                  hintStyle: TextStyle(
+                                                      color: Colors.grey),
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              height: height / 40,
+                                            ),
+                                            Text(
+                                              "Select Date",
+                                              style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 16.0),
+                                            ),
+                                            SizedBox(
+                                              height: height / 60,
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 16.0),
+                                              child: GestureDetector(
+                                                onTap: () {
+                                                  _selectDate(context);
+                                                },
+                                                child: Text(
+                                                  "${selectedDate.toLocal()}"
+                                                      .split(' ')[0],
+                                                  style: TextStyle(
+                                                    fontSize: height / 40,
 //                  decoration: TextDecoration.underline
+                                                  ),
+                                                ),
+                                              ),
                                             ),
-                                          ),
-                                        ),
-                                      ),
-                                      Center(
-                                        child: Container(
-                                          width: width / 1.2,
-                                          child: Divider(
-                                            thickness: 1,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: height / 60,
-                                      ),
-                                      Text(
-                                        "Type of Lesson",
-                                        style: TextStyle(
-                                            color: Colors.grey, fontSize: 16.0),
-                                      ),
-                                      SizedBox(
-                                        height: height / 90,
-                                      ),
-                                      Center(
-                                        child: Container(
-                                          width: width / 1.14,
-                                          height: height / 18,
-                                          decoration: BoxDecoration(
-                                            color: Color(0xff),
-                                            border: Border.all(
-                                              color:
-                                                  Colors.grey.withOpacity(0.5),
-                                              width: 1.0,
+                                            Center(
+                                              child: Container(
+                                                width: width / 1.2,
+                                                child: Divider(
+                                                  thickness: 1,
+                                                ),
+                                              ),
                                             ),
-                                            borderRadius:
-                                                BorderRadius.circular(20.0),
-                                          ),
+                                            SizedBox(
+                                              height: height / 60,
+                                            ),
+                                            Text(
+                                              "Type of Lesson",
+                                              style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 16.0),
+                                            ),
+                                            SizedBox(
+                                              height: height / 90,
+                                            ),
+                                            Center(
+                                              child: Container(
+                                                width: width / 1.14,
+                                                height: height / 18,
+                                                decoration: BoxDecoration(
+                                                  color: Color(0xff),
+                                                  border: Border.all(
+                                                    color: Colors.grey
+                                                        .withOpacity(0.5),
+                                                    width: 1.0,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          20.0),
+                                                ),
 
 //                        color: Colors.yellow,
-                                          child: DropdownButtonHideUnderline(
-                                            child: Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 20.0, right: 18),
-                                              child: userTpe(),
+                                                child:
+                                                    DropdownButtonHideUnderline(
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 20.0,
+                                                            right: 18),
+                                                    child: userTpe(),
+                                                  ),
+                                                ),
+                                              ),
                                             ),
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: height / 40,
-                                      ),
-                                      Text(
-                                        "Select Price Range",
-                                        style: TextStyle(
-                                            color: Colors.grey, fontSize: 16.0),
-                                      ),
-                                      Center(
-                                        child: Container(
-                                          width: width / 1.1,
-                                          child: SliderTheme(
-                                            data: SliderTheme.of(context)
-                                                .copyWith(
-                                              overlayColor: Color(0xff9847b7),
-                                              activeTickMarkColor:
-                                                  Color(0xff9847b7),
-                                              thumbColor: Color(0xff9847b7),
-                                              activeTrackColor:
-                                                  Color(0xff9847b7),
+                                            SizedBox(
+                                              height: height / 40,
                                             ),
-                                            child: frs.RangeSlider(
-                                              min: 0.0,
-                                              max: 100.0,
-                                              lowerValue: _lowerValue,
-                                              upperValue: _upperValue,
-                                              divisions: 100,
-                                              showValueIndicator: true,
-                                              valueIndicatorMaxDecimals: 1,
-                                              onChanged: (double newLowerValue,
-                                                  double newUpperValue) {
-                                                setState(() {
-                                                  _lowerValue = newLowerValue;
-                                                  _upperValue = newUpperValue;
-                                                });
-                                              },
+                                            Text(
+                                              "Select Price Range",
+                                              style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 16.0),
                                             ),
-                                          ),
-                                        ),
-                                      ),
-                                      Center(
-                                        child: Container(
-                                          width: width / 1.2,
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: <Widget>[
-                                              Text("Min: $_lowerValue"),
-                                              Text("Max: $_upperValue"),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: height / 40,
-                                      ),
-                                      Text(
-                                        "Participants",
-                                        style: TextStyle(
-                                            color: Colors.grey, fontSize: 16.0),
-                                      ),
-                                      Center(
-                                        child: Container(
-                                          width: width / 1.1,
-                                          child: SliderTheme(
-                                            data: SliderTheme.of(context)
-                                                .copyWith(
-                                              overlayColor: Color(0xff9847b7),
-                                              activeTickMarkColor:
-                                                  Color(0xff9847b7),
-                                              thumbColor: Color(0xff9847b7),
-                                              activeTrackColor:
-                                                  Color(0xff9847b7),
+                                            Center(
+                                              child: Container(
+                                                width: width / 1.1,
+                                                child: SliderTheme(
+                                                  data: SliderTheme.of(context)
+                                                      .copyWith(
+                                                    overlayColor:
+                                                        Color(0xff9847b7),
+                                                    activeTickMarkColor:
+                                                        Color(0xff9847b7),
+                                                    thumbColor:
+                                                        Color(0xff9847b7),
+                                                    activeTrackColor:
+                                                        Color(0xff9847b7),
+                                                  ),
+                                                  child: frs.RangeSlider(
+                                                    min: 0.0,
+                                                    max: 100.0,
+                                                    lowerValue: _lowerValue,
+                                                    upperValue: _upperValue,
+                                                    divisions: 100,
+                                                    showValueIndicator: true,
+                                                    valueIndicatorMaxDecimals:
+                                                        1,
+                                                    onChanged: (double
+                                                            newLowerValue,
+                                                        double newUpperValue) {
+                                                      setState(() {
+                                                        _lowerValue =
+                                                            newLowerValue;
+                                                        _upperValue =
+                                                            newUpperValue;
+                                                      });
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
                                             ),
-                                            child: frs.RangeSlider(
-                                              min: 0.0,
-                                              max: 100.0,
-                                              lowerValue: _lowerValue,
-                                              upperValue: _upperValue,
-                                              divisions: 100,
-                                              showValueIndicator: true,
-                                              valueIndicatorMaxDecimals: 1,
-                                              onChanged: (double newLowerValue,
-                                                  double newUpperValue) {
-                                                setState(() {
-                                                  _lowerValue = newLowerValue;
-                                                  _upperValue = newUpperValue;
-                                                });
-                                              },
+                                            Center(
+                                              child: Container(
+                                                width: width / 1.2,
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: <Widget>[
+                                                    Text("Min: $_lowerValue"),
+                                                    Text("Max: $_upperValue"),
+                                                  ],
+                                                ),
+                                              ),
                                             ),
-                                          ),
-                                        ),
-                                      ),
-                                      Center(
-                                        child: Container(
-                                          width: width / 1.2,
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: <Widget>[
-                                              Text("Min: $_lowerValue"),
-                                              Text("Max: $_upperValue"),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: height / 40,
-                                      ),
-                                      Container(
-                                        height: height / 20,
+                                            SizedBox(
+                                              height: height / 40,
+                                            ),
+                                            Text(
+                                              "Participants",
+                                              style: TextStyle(
+                                                  color: Colors.grey,
+                                                  fontSize: 16.0),
+                                            ),
+                                            Center(
+                                              child: Container(
+                                                width: width / 1.1,
+                                                child: SliderTheme(
+                                                  data: SliderTheme.of(context)
+                                                      .copyWith(
+                                                    overlayColor:
+                                                        Color(0xff9847b7),
+                                                    activeTickMarkColor:
+                                                        Color(0xff9847b7),
+                                                    thumbColor:
+                                                        Color(0xff9847b7),
+                                                    activeTrackColor:
+                                                        Color(0xff9847b7),
+                                                  ),
+                                                  child: frs.RangeSlider(
+                                                    min: 0.0,
+                                                    max: 100.0,
+                                                    lowerValue: _lowerValue,
+                                                    upperValue: _upperValue,
+                                                    divisions: 100,
+                                                    showValueIndicator: true,
+                                                    valueIndicatorMaxDecimals:
+                                                        1,
+                                                    onChanged: (double
+                                                            newLowerValue,
+                                                        double newUpperValue) {
+                                                      setState(() {
+                                                        _lowerValue =
+                                                            newLowerValue;
+                                                        _upperValue =
+                                                            newUpperValue;
+                                                      });
+                                                    },
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Center(
+                                              child: Container(
+                                                width: width / 1.2,
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceBetween,
+                                                  children: <Widget>[
+                                                    Text("Min: $_lowerValue"),
+                                                    Text("Max: $_upperValue"),
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              height: height / 40,
+                                            ),
+                                            Container(
+                                              height: height / 20,
 //                                        width: width/1,
-                                        child: Center(
-                                          child: ToggleButtons(
-                                            color: Color(0xff9847b7),
-                                            selectedColor: Colors.white,
-                                            selectedBorderColor:
-                                                Color(0xff9847b7),
-                                            fillColor: Color(0xff9847b7),
-                                            splashColor: Colors.lightBlue,
-                                            highlightColor: Colors.lightBlue,
+                                              child: Center(
+                                                child: ToggleButtons(
+                                                  color: Color(0xff9847b7),
+                                                  selectedColor: Colors.white,
+                                                  selectedBorderColor:
+                                                      Color(0xff9847b7),
+                                                  fillColor: Color(0xff9847b7),
+                                                  splashColor: Colors.lightBlue,
+                                                  highlightColor:
+                                                      Colors.lightBlue,
 //                                            borderColor: Color(0xffefefef),
-                                            borderWidth: 4,
-                                            renderBorder: true,
-                                            borderRadius: BorderRadius.only(
-                                                topLeft: Radius.circular(25),
-                                                bottomRight:
-                                                    Radius.circular(25)),
-                                            disabledColor: Colors.blueGrey,
-                                            disabledBorderColor:
-                                                Colors.blueGrey,
-                                            focusColor: Colors.red,
-                                            focusNodes: focusToggle,
-                                            children: <Widget>[
-                                              Text("All"),
-                                              Text("Reset"),
-                                              Text("Apply"),
-                                            ],
-                                            isSelected: isSelected,
-                                            onPressed: (int index) {
-                                              setState(() {
-                                                isSelected[index] =
-                                                    !isSelected[index];
-                                              });
-                                            },
-                                          ),
+                                                  borderWidth: 4,
+                                                  renderBorder: true,
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                  25),
+                                                          bottomRight:
+                                                              Radius.circular(
+                                                                  25)),
+                                                  disabledColor:
+                                                      Colors.blueGrey,
+                                                  disabledBorderColor:
+                                                      Colors.blueGrey,
+                                                  focusColor: Colors.red,
+                                                  focusNodes: focusToggle,
+                                                  children: <Widget>[
+                                                    Text("All"),
+                                                    Text("Reset"),
+                                                    Text("Apply"),
+                                                  ],
+                                                  isSelected: isSelected,
+                                                  onPressed: (int index) {
+                                                    setState(() {
+                                                      isSelected[index] =
+                                                          !isSelected[index];
+                                                    });
+                                                  },
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              ));
-                        },
-                      );
-                    },
-                    icon: Icon(
-                      Icons.tune,
-                      color: Color(0xff9847b7),
-                    ),
-                  ) : Text(''),
+                                    ));
+                              },
+                            );
+                          },
+                          icon: Icon(
+                            Icons.tune,
+                            color: Color(0xff9847b7),
+                          ),
+                        )
+                      : Text(''),
                 ],
               ),
               Container(
@@ -680,13 +731,8 @@ class user_reviewState extends State<user_search> {
 
   double _lowerValue = 20.0;
   double _upperValue = 80.0;
-  double _lowerValueFormatter = 20.0;
-  double _upperValueFormatter = 20.0;
 
   Widget lesson_container() {
-    setState(() {
-      lessonchoosed = true;
-    });
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     return SingleChildScrollView(
@@ -721,14 +767,6 @@ class user_reviewState extends State<user_search> {
                     color: Colors.blue,
                     width: 2.0,
                   ),
-//                       child: CircleAvatar(
-//                         backgroundColor: Colors.blue,
-////                       minRadius: 25,
-////                       maxRadius: 26,
-//                         backgroundImage:
-//                         AssetImage(workersyoulove[index].imageUrl),
-//                         radius: 24,
-//                       ),
                 ),
               ),
               title: Column(
@@ -757,20 +795,10 @@ class user_reviewState extends State<user_search> {
               ),
             );
           },
-//                        separatorBuilder: (context, index)
-//                        {
-//                          return Divider();
-//                        },
         ),
       ),
     );
   }
-
-  Map<String, bool> values = {
-    'Worker You Loved': false,
-    'Worker High Rated': false,
-    'Worker recommended for you': false,
-  };
 
   Widget worker_conatiner() {
     double width = MediaQuery.of(context).size.width;
@@ -803,8 +831,7 @@ class user_reviewState extends State<user_search> {
               child: ListView.builder(
                 physics: NeverScrollableScrollPhysics(),
                 itemCount: loved_list.length,
-                itemBuilder: (context, index)
-                {
+                itemBuilder: (context, index) {
                   return ListTile(
                     onTap: () {
 //                        Navigator.push(context,
@@ -904,10 +931,10 @@ class user_reviewState extends State<user_search> {
                       decoration: new BoxDecoration(
                         color: const Color(0xff7c94b6),
                         image: new DecorationImage(
-                          image:
-                          recommended_list[index].imageUrl == null
+                          image: recommended_list[index].imageUrl == null
                               ? new AssetImage('images/user/pic1.JPG')
-                              : new NetworkImage(recommended_list[index].imageUrl),
+                              : new NetworkImage(
+                                  recommended_list[index].imageUrl),
                           fit: BoxFit.cover,
                         ),
                         borderRadius:
@@ -994,7 +1021,8 @@ class user_reviewState extends State<user_search> {
                         image: new DecorationImage(
                           image: highrated_list[index].imageUrl == null
                               ? new AssetImage('images/user/pic1.JPG')
-                              : new NetworkImage(highrated_list[index].imageUrl),
+                              : new NetworkImage(
+                                  highrated_list[index].imageUrl),
                           fit: BoxFit.cover,
                         ),
                         borderRadius:
@@ -1054,59 +1082,132 @@ class user_reviewState extends State<user_search> {
   Widget friends_conatiner() {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-    return Container(
-//      color: Colors.pinkAccent,
-//      height: height/1.6,
-
-      child: null,
+    return SingleChildScrollView(
+      child: friends_list.length == null
+          ? Container(
+//              color: Colors.red,
+              height: height / 2,
+//                      width: width / 1,
+              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 18.0),
+              child: ListView.builder(
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: friends_list.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    onTap: () {
+//                        Navigator.push(context,
+//                            MaterialPageRoute(builder: (context) => book_event()));
+                      print("Hell");
+                    },
+                    leading: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: new BoxDecoration(
+                        color: const Color(0xff7c94b6),
+                        image: new DecorationImage(
+                          image: friends_list[index].imageUrl == null
+                              ? new AssetImage('images/user/pic1.JPG')
+                              : new NetworkImage(friends_list[index].imageUrl),
+                          fit: BoxFit.cover,
+                        ),
+                        borderRadius:
+                            new BorderRadius.all(new Radius.circular(50.0)),
+                        border: new Border.all(
+                          color: Colors.blue,
+                          width: 2.0,
+                        ),
+                      ),
+                    ),
+                    title: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          friends_list[index].personname,
+                          style: TextStyle(
+                              fontSize: height / 50,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xff413564)),
+                          textAlign: TextAlign.center,
+                        ),
+                        Text(
+                          friends_list[index].email,
+                          style: TextStyle(
+                              fontSize: height / 60,
+//                                fontWeight: FontWeight.bold,
+                              color: Color(0xff4f4848)),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          //textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            )
+          :
+      Container(
+        padding: EdgeInsets.only(top: height/ 5),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "Friends List Empty",
+                style: TextStyle(
+                    fontSize: height / 38,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xff9847b7)),
+                maxLines: 2,
+                textAlign: TextAlign.center,
+                overflow: TextOverflow.ellipsis,
+                //textAlign: TextAlign.center,
+              ),
+              SizedBox(
+                width: width / 50,
+              ),
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children:
+                  [
+                    Text(
+                      "Click to add new Friends",
+                      style: TextStyle(
+                          fontSize: height / 38,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xff9847b7)),
+                      maxLines: 2,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                      //textAlign: TextAlign.center,
+                    ),
+                    SizedBox(
+                      width: width / 50,
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.add,
+                        color: Colors.purple[400],
+                      ),
+                      onPressed: ()
+                      {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    user_find_friends()));
+                      },
+                      iconSize: height / 20,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
-}
-
-class listItems {
-  String title;
-  String imageUrl;
-  String description;
-
-  listItems({
-    this.description,
-    this.title,
-    this.imageUrl,
-  });
-}
-
-class lessonlistItems {
-  String title;
-  String imageUrl;
-  String description;
-
-  lessonlistItems({
-    this.description,
-    this.title,
-    this.imageUrl,
-  });
-}
-
-class recomendlistItems {
-  String title;
-  String imageUrl;
-  String description;
-
-  recomendlistItems({
-    this.description,
-    this.title,
-    this.imageUrl,
-  });
-}
-
-class highratedlistItems {
-  String title;
-  String imageUrl;
-  String description;
-
-  highratedlistItems({
-    this.description,
-    this.title,
-    this.imageUrl,
-  });
 }
