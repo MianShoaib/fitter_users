@@ -1,5 +1,6 @@
+import 'package:fitter_users/User_Models/fiter_user_participants_model.dart';
 import 'package:flutter/material.dart';
-import 'package:fitter_users/User_Models/fitter_participants_model.dart';
+
 
 class card_participants extends StatelessWidget {
   const card_participants({
