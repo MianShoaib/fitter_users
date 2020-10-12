@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fitter_users/User_Models/fitter_event_model.dart';
-import 'package:fitter_users/User_Models/fitter_participants_model.dart';
+import 'package:fitter_users/User_Models/fiter_user_participants_model.dart';
 import 'package:fitter_users/User_UI/user_eventPage.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -99,7 +99,8 @@ class _CalenderState extends State<user_Calender> {
         DateTime dt_end = DateTime.utc(
             event.end_date.year, event.end_date.month, event.end_date.day);
         print(event.repeat);
-        if (event.repeat == "Daily") {
+        if (event.repeat == "Daily")
+        {
           int d1 = dt_start.day;
           int d2 = dt_end.day;
           if (d1 != d2) {

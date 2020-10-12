@@ -38,15 +38,19 @@ class worker_followerState extends State<user_friends> {
         .getDocuments();
     List<DocumentSnapshot> user_requests_docs =
         await user_requests_documents.documents;
-    for (var each in user_requests_docs) {
+    for (var each in user_requests_docs)
+    {
       String status = each.data["status"];
-      if (status == "1") {
+      print(status);
+      if (status == "1")
+      {
         Friends request = new Friends(
             personname: each.data["name"],
             imageUrl: each.data["photourl"],
             email: each.data["email"]);
         friends_list.add(request);
       }
+      print(friends_list);
       setState(() {});
     }
   }
@@ -59,7 +63,8 @@ class worker_followerState extends State<user_friends> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context)
+  {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     return Scaffold(
@@ -80,7 +85,7 @@ class worker_followerState extends State<user_friends> {
         elevation: 2,
       ),
       backgroundColor: Color(0xffe3e1e1),
-      body: friends_list.length == null
+      body: friends_list.length != null || friends_list.length != 0
           ? SafeArea(
               child: SingleChildScrollView(
                 child: Column(
@@ -143,7 +148,11 @@ class worker_followerState extends State<user_friends> {
                             ),
                             onPressed: ()
                             {
-                              print("Find Friends");
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          user_find_friends()));
                             },
                             iconSize: height / 20,
                           ),
@@ -172,7 +181,7 @@ class worker_followerState extends State<user_friends> {
                                     context,
                                     MaterialPageRoute(
                                         builder: (context) =>
-                                            friend_profile()));
+                                            friend_profile(email: friends_list[index].email)));
                                 print("Hell");
                               },
                               leading: Container(

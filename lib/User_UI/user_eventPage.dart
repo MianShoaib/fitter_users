@@ -1,6 +1,6 @@
 import 'package:fitter_users/User_Models/fitter_event_model.dart';
-import 'package:fitter_users/User_Models/fitter_participants_model.dart';
-import 'package:fitter_users/User_UI/card_participants.dart';
+import 'package:fitter_users/User_Models/fiter_user_participants_model.dart';
+import 'package:fitter_users/User_UI/card_user_participants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 

@@ -1,15 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 
-class user_Splash extends StatefulWidget {
-
-
-//  final ImageProvider splash_logo;
-//  Splash({
-//    Key key,
-//    this.splash_logo = const AssetImage('assets/images/splash_logo.png'),
-//  }) : super(key: key);
-
+class user_Splash extends StatefulWidget
+{
   @override
   _SplashState createState() => _SplashState();
 }

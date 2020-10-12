@@ -1,6 +1,7 @@
 import 'dart:core';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fitter_users/User_Models/fitter_event_model.dart';
+import 'package:fitter_users/User_UI/user_home.dart';
 import 'package:fitter_users/User_UI/user_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -462,7 +463,6 @@ class book_eventState extends State<book_event> {
                       ),
                     ),
                   ),
-
                   Text(
                     '${event.location}',
                     style: TextStyle(
@@ -474,177 +474,245 @@ class book_eventState extends State<book_event> {
                   SizedBox(
                     height: height / 60,
                   ),
-
-
                   Center(
-                          child: GestureDetector(
-                            onTap: () {
-                              return showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(20))),
-                                      content: Container(
-                                        height: height / 9,
-                                        child: Column(
-                                          children: <Widget>[
-                                            Text("Are You Sure?"),
-                                            SizedBox(
-                                              height: height / 60,
-                                            ),
-                                            Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: <Widget>[
-                                                ButtonTheme(
-                                                  minWidth: width / 4,
-                                                  height: height / 18,
-                                                  child: FlatButton(
-                                                    shape:
-                                                        new RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          new BorderRadius
-                                                              .circular(20.0),
-                                                      //    side: BorderSide(color: Color(0xff2CBE77))
+                    child: GestureDetector(
+                      onTap: () {
+                        return showDialog(
+                          context: context,
+                          builder: (context12) {
+                            return AlertDialog(
+                                shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(20))),
+                                content: Container(
+                                  height: height / 9,
+                                  child: Column(
+                                    children: <Widget>[
+                                      Text("Are You Sure?"),
+                                      SizedBox(
+                                        height: height / 60,
+                                      ),
+                                      Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: <Widget>[
+                                          ButtonTheme(
+                                            minWidth: width / 4,
+                                            height: height / 18,
+                                            child: FlatButton(
+                                              shape: new RoundedRectangleBorder(
+                                                borderRadius:
+                                                    new BorderRadius.circular(
+                                                        20.0),
+                                                //    side: BorderSide(color: Color(0xff2CBE77))
+                                              ),
+                                              color: Color(0xff9847b7),
+                                              textColor: Colors.white,
+                                              child: Text(
+                                                "Yes",
+                                                style: TextStyle(
+                                                    fontSize: height / 50,
+                                                    fontWeight: FontWeight.w500
+                                                    //letterSpacing: 1
                                                     ),
-                                                    color: Color(0xff9847b7),
-                                                    textColor: Colors.white,
-                                                    child: Text(
-                                                      "Yes",
-                                                      style: TextStyle(
-                                                          fontSize: height / 50,
-                                                          fontWeight:
-                                                              FontWeight.w500
-                                                          //letterSpacing: 1
-                                                          ),
-                                                    ),
-                                                    onPressed: () async
+                                              ),
+                                              onPressed: () async
+                                              {
+                                                bool booked = false;
+                                                print("Book event");
+                                                String name,
+                                                    desc,
+                                                    rating,
+                                                    url,
+                                                    email;
+                                                _pref = await SharedPreferences
+                                                    .getInstance();
+                                                email =
+                                                    _pref.getString("email");
+                                                name =
+                                                    _pref.getString("fullname");
+                                                url =
+                                                    _pref.getString("photourl");
+                                                Firestore firestore =
+                                                    Firestore.instance;
+                                                CollectionReference
+                                                    eventsreference =
+                                                    await firestore
+                                                        .collection("users")
+                                                        .document(email)
+                                                        .collection("Events");
+                                                var docs = await eventsreference
+                                                    .getDocuments();
+                                                List<DocumentSnapshot>
+                                                    event_docs = docs.documents;
+                                                if (event_docs.length != null &&
+                                                    event_docs.length != 0)
+                                                {
+                                                  for (var each in event_docs)
+                                                  {
+                                                    if (each.data["eventID"] == event.eventID1)
                                                     {
-                                                      print("Book event");
-                                                      Navigator.pop(context);
-                                                      String name, desc, rating, url, email;
-                                                      _pref = await SharedPreferences.getInstance();
-                                                      name = _pref.getString("fullname");
-                                                      url = _pref.getString("photourl");
-                                                      email = _pref.getString("email");
-                                                      name = _pref.getString("fullname");
-                                                      url = _pref.getString("photourl");
-                                                      Firestore firestore = Firestore.instance;
-                                                      QuerySnapshot events = await firestore.collection("users").document(email).collection("Events").getDocuments();
-                                                      var event_docs = await events.documents;
-                                                      for (var each in event_docs)
-                                                        {
-                                                          if(each.data["eventID"] == event.eventID1)
-                                                            {
-                                                              ShowToast("Event Already Booked.");
-                                                              break;
-                                                            }
-                                                          else
-                                                            {
-                                                              firestore.collection("Events").document(event.eventID1).collection("Event").document(
-                                                                  event.eventID2)
-                                                                  .collection(
-                                                                  "participants")
-                                                                  .document()
-                                                                  .setData({
-                                                                "name": name,
-                                                                "desc": desc,
-                                                                "rating": rating,
-                                                                "url": url,
-                                                              });
-                                                              firestore
-                                                                  .collection("users")
-                                                                  .document(email)
-                                                                  .collection("Events")
-                                                                  .document()
-                                                                  .setData({
-                                                                "eventID":
-                                                                event.eventID1
-                                                              });
-                                                              Navigator.push(
-                                                                  context,
-                                                                  MaterialPageRoute(
-                                                                      builder: (context) =>
-                                                                          user_navigation_bar()));
-                                                            }
-                                                        }
-                                                      Navigator.push(
-                                                          context,
-                                                          MaterialPageRoute(
-                                                              builder: (context) =>
-                                                                  user_navigation_bar()));
-                                                    },
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  width: width / 60,
-                                                ),
-                                                ButtonTheme(
-                                                  minWidth: width / 4,
-                                                  height: height / 18,
-                                                  child: FlatButton(
-                                                    shape:
-                                                        new RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          new BorderRadius
-                                                              .circular(20.0),
-                                                      //    side: BorderSide(color: Color(0xff2CBE77))
+                                                      Navigator.pop(context12);
+                                                      ShowToast(
+                                                          "Event Already Booked.");
+                                                      booked = true;
+                                                      break;
+                                                    }
+                                                  }
+                                                  if(!booked)
+                                                  {
+                                                    Navigator.pop(context12);
+                                                    ShowToast(
+                                                        "Booking the Event");
+                                                    await firestore
+                                                        .collection("Events")
+                                                        .document(
+                                                        event.eventID1)
+                                                        .collection("Event")
+                                                        .document(
+                                                        event.eventID2)
+                                                        .collection(
+                                                        "participants")
+                                                        .document()
+                                                        .setData({
+                                                      "name": name,
+                                                      "desc": 'Hi There, I am Coming😎.',
+                                                      "rating": rating,
+                                                      "url": url,
+                                                    });
+                                                    await firestore
+                                                        .collection("users")
+                                                        .document(email)
+                                                        .collection("Events")
+                                                        .document()
+                                                        .setData({
+                                                      "worker" : event.worker,
+                                                      "eventID":
+                                                      event.eventID1
+                                                    });
+                                                    DocumentReference worker_noti_ref = await firestore.collection("workers").document(event.worker).collection("notifications").document();
+                                                    worker_noti_ref.setData({
+                                                      "desc": "Booked ${event.title}.",
+                                                      "name": name,
+                                                      "url": url,
+                                                    });
+                                                    ShowToast(
+                                                        "Event Booked Successfully.");
+                                                    Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder: (context) => user_navigation_bar()));
+                                                  }
+                                                }
+                                                else
+                                                  {
+                                                    Navigator.pop(context12);
+                                                  ShowToast(
+                                                      "Booking the Event");
+                                                    await firestore
+                                                      .collection("Events")
+                                                      .document(event.eventID1)
+                                                      .collection("Event")
+                                                      .document(event.eventID2)
+                                                      .collection(
+                                                          "participants")
+                                                      .document()
+                                                      .setData({
+                                                    "name": name,
+                                                    "desc": desc,
+                                                    "rating": rating,
+                                                    "url": url,
+                                                  });
+                                                    await firestore
+                                                      .collection("users")
+                                                      .document(email)
+                                                      .collection("Events")
+                                                      .document()
+                                                      .setData({
+                                                    "worker" : event.worker,
+                                                    "eventID": event.eventID1
+                                                  });
+                                                    DocumentReference worker_noti_ref = await firestore.collection("workers").document(event.worker).collection("notifications").document();
+                                                    worker_noti_ref.setData({
+                                                      "desc": "Booked ${event.title}.",
+                                                      "name": name,
+                                                      "url": url,
+                                                    });
+                                                  ShowToast(
+                                                      "Event Booked Successfully.");
+                                                    Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                            builder: (context) => user_navigation_bar()));
+                                                }
+                                              },
+                                            ),
+                                          ),
+                                          SizedBox(
+                                            width: width / 60,
+                                          ),
+                                          ButtonTheme(
+                                            minWidth: width / 4,
+                                            height: height / 18,
+                                            child: FlatButton(
+                                              shape: new RoundedRectangleBorder(
+                                                borderRadius:
+                                                    new BorderRadius.circular(
+                                                        20.0),
+                                                //    side: BorderSide(color: Color(0xff2CBE77))
+                                              ),
+                                              color: Color(0xff9847b7),
+                                              textColor: Colors.white,
+                                              child: Text(
+                                                "No",
+                                                style: TextStyle(
+                                                    fontSize: height / 50,
+                                                    fontWeight: FontWeight.w500
+                                                    //letterSpacing: 1
                                                     ),
-                                                    color: Color(0xff9847b7),
-                                                    textColor: Colors.white,
-                                                    child: Text(
-                                                      "No",
-                                                      style: TextStyle(
-                                                          fontSize: height / 50,
-                                                          fontWeight:
-                                                              FontWeight.w500
-                                                          //letterSpacing: 1
-                                                          ),
-                                                    ),
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                    },
-                                                  ),
-                                                ),
-                                              ],
-                                            )
-                                          ],
-                                        ),
-                                      ));
-                                },
-                              );
-                            },
-                            child: Container(
-                              width: width / 1.2,
-                              height: 50.0,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(100.0),
-                                gradient: LinearGradient(
-                                  begin: Alignment(0.0, -1.0),
-                                  end: Alignment(0.0, 1.0),
-                                  colors: [
-                                    const Color(0xff9847b7),
-                                    const Color(0xffbc5dff)
-                                  ],
-                                  stops: [0.0, 1.0],
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  "Book Event",
-                                  style: TextStyle(
-                                      color: Colors.white70,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
-                                ),
-                              ),
-                            ),
+                                              ),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                ));
+                          },
+                        );
+                      },
+                      child: Container(
+                        width: width / 1.2,
+                        height: 50.0,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(100.0),
+                          gradient: LinearGradient(
+                            begin: Alignment(0.0, -1.0),
+                            end: Alignment(0.0, 1.0),
+                            colors: [
+                              const Color(0xff9847b7),
+                              const Color(0xffbc5dff)
+                            ],
+                            stops: [0.0, 1.0],
                           ),
                         ),
+                        child: Center(
+                          child: Text(
+                            "Book Event",
+                            style: TextStyle(
+                                color: Colors.white70,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
 
                   SizedBox(
                     height: height / 16,

@@ -8,16 +8,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class user_notification extends StatefulWidget {
+class user_notification extends StatefulWidget
+{
   @override
   notificationState createState() => notificationState();
-}
-
-class Post {
-  final String title;
-  final String body;
-
-  Post(this.title, this.body);
 }
 
 class notificationState extends State<user_notification>
@@ -26,6 +20,7 @@ class notificationState extends State<user_notification>
   String name,url,email;
   FirebaseUser user;
   DocumentSnapshot userdata;
+  bool notification_load = false;
   List<Friends> listdata = List();
   void Init() async
   {
@@ -38,6 +33,25 @@ class notificationState extends State<user_notification>
     getRequests();
   }
 
+  Widget loading(double height)
+  {
+    if (!notification_load)
+    {
+      return Center(
+        child: Container(
+          padding: EdgeInsets.only(top: height / 3),
+          child: CircularProgressIndicator(
+            strokeWidth: 5.0,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              AppUser.loadingfrontColor,
+            ),
+            backgroundColor: AppUser.loadingbackgroundColor,
+          ),
+        ),
+      );
+    }
+    return SizedBox();
+  }
 
   Future getRequests() async
   {
@@ -64,6 +78,8 @@ class notificationState extends State<user_notification>
       }
       setState(() {});
     }
+    notification_load = true;
+    setState(() {});
   }
 
   Future acceptRequest(String request_mail) async
@@ -82,6 +98,12 @@ class notificationState extends State<user_notification>
           "email" : each.data["email"],
           "name" : each.data["name"],
           "photourl" : each.data["photourl"],
+          "status" : "1",
+        });
+        await firestore.collection("users").document(request_mail).collection("Friends").document().setData({
+          "email" : email,
+          "name" : name,
+          "photourl" : url,
           "status" : "1",
         });
         each.reference.delete();
@@ -120,113 +142,114 @@ class notificationState extends State<user_notification>
       backgroundColor: Color(0xffe3e1e1),
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+          child: Stack(
             children: <Widget>[
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(
+                    height: height / 40,
+                  ),
+                  Container(
+                    width: width / 1,
+                    height: height / 1.2,
+                    decoration: BoxDecoration(
+                      color: Color(0xffe3e1e1),
+                      borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(30),
+                          topRight: Radius.circular(30),
+                          bottomLeft: Radius.circular(0),
+                          bottomRight: Radius.circular(0)),
 
-              SizedBox(
-                height: height / 40,
-              ),
-              Container(
-                width: width / 1,
-                height: height / 1.2,
-//                alignment: Alignment.b,
-                decoration: BoxDecoration(
-                  color: Color(0xffe3e1e1),
-                  borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                      bottomLeft: Radius.circular(0),
-                      bottomRight: Radius.circular(0)),
-
-                ),
-
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    SizedBox(
-                      height: height / 20,
                     ),
-                    Container(
+
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        SizedBox(
+                          height: height / 20,
+                        ),
+                        Container(
 //                      color: Color(0xffF5F5F5),
-                      height: height / 1.3,
+                          height: height / 1.3,
 //                      width: width / 1,
-                      child: ListView.builder(
-                        itemCount: listdata.length,
-                        itemBuilder: (context, index)
-                        {
-                          return Card(
-                            color: Color(0xffefefef),
-                            elevation: 1,
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 10,bottom: 10),
-                              child: ListTile(
-                                onTap: (){
+                          child: ListView.builder(
+                            itemCount: listdata.length,
+                            itemBuilder: (context, index)
+                            {
+                              return Card(
+                                color: Color(0xffefefef),
+                                elevation: 1,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 10,bottom: 10),
+                                  child: ListTile(
+                                    onTap: (){
 //                                  Navigator.push(context,
 //                                      MaterialPageRoute(builder: (context) => request_detail()));
 //                                  print("Hell");
-                                },
+                                    },
 
-                                leading: Container(
-                                  //color: Colors.yellow,
-                                  width: 50,
-                                  height: 50,
-                                  child: CircleAvatar(
-                                    backgroundImage:
-                                    listdata[index].imageUrl == null
-                                        ? AssetImage('images/user/pic1.JPG')
-                                    : NetworkImage(listdata[index].imageUrl),
-                                    radius: 26,
-                                  ),
-                                ),
-                                title: Text(
-                                  listdata[index].personname,
-                                  style: TextStyle(
-                                      fontSize: height / 48,
-                                      fontWeight: FontWeight.w500,
-                                      color:  Color(0xff8C04FF),
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  //textAlign: TextAlign.center,
-                                ),
-                                trailing:  GestureDetector(
-                                  onTap: () async
-                                  {
-                                    acceptRequest(listdata[index].email);
-                                  },
-                                  child: Container(
-                                    width: width/5,
-                                    height: 26.0,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(100.0),
-                                      gradient: LinearGradient(
-                                        begin: Alignment(0.0, -1.0),
-                                        end: Alignment(0.0, 1.0),
-                                        colors: [const Color(0xff8c04ff), const Color(0xffbc5dff)],
-                                        stops: [0.0, 1.0],
+                                    leading: Container(
+                                      //color: Colors.yellow,
+                                      width: 50,
+                                      height: 50,
+                                      child: CircleAvatar(
+                                        backgroundImage:
+                                        listdata[index].imageUrl == null
+                                            ? AssetImage('images/user/pic1.JPG')
+                                        : NetworkImage(listdata[index].imageUrl),
+                                        radius: 26,
                                       ),
                                     ),
-                                    child: Center(child: Text("Accept",
+                                    title: Text(
+                                      listdata[index].personname,
                                       style: TextStyle(
-                                          color: Colors.white70,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12
-                                      ),),),
+                                          fontSize: height / 48,
+                                          fontWeight: FontWeight.w500,
+                                          color:  Color(0xff8C04FF),
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      //textAlign: TextAlign.center,
+                                    ),
+                                    trailing:  GestureDetector(
+                                      onTap: () async
+                                      {
+                                        await acceptRequest(listdata[index].email);
+                                      },
+                                      child: Container(
+                                        width: width/5,
+                                        height: 26.0,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(100.0),
+                                          gradient: LinearGradient(
+                                            begin: Alignment(0.0, -1.0),
+                                            end: Alignment(0.0, 1.0),
+                                            colors: [const Color(0xff8c04ff), const Color(0xffbc5dff)],
+                                            stops: [0.0, 1.0],
+                                          ),
+                                        ),
+                                        child: Center(child: Text("Accept",
+                                          style: TextStyle(
+                                              color: Colors.white70,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12
+                                          ),),),
+                                      ),
+                                    ),
                                   ),
                                 ),
-
-                              ),
-                            ),
-                          );
-                        },
-//
-                      ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+              loading(height),
             ],
           ),
         ),

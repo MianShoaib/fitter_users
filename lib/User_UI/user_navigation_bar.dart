@@ -37,7 +37,6 @@ class NavigationBar extends State<user_navigation_bar>
     return MaterialApp(
       theme: ThemeData(
           primarySwatch: Colors.grey,
-
           primaryTextTheme: TextTheme(
             title: TextStyle(color: Colors.grey),
           )),

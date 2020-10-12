@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fitter_users/User_Models/fitter_event_model.dart';
-import 'package:fitter_users/User_Models/fitter_participants_model.dart';
+import 'package:fitter_users/User_Models/fiter_user_participants_model.dart';
+import 'package:fitter_users/User_Models/fitter_user_model.dart';
 import 'package:fitter_users/User_UI/card_event_vertical.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,29 @@ class worker_homeState extends State<user_myEvent>
   List<String> event_ids = List();
   SharedPreferences _pref;
   String email,worker_name, worker_url;
+
+  bool events_load = false;
+  Widget loading(double height)
+  {
+    if (!events_load)
+    {
+      return Center(
+        child: Container(
+          padding: EdgeInsets.only(top: height / 3),
+          child: CircularProgressIndicator(
+            strokeWidth: 5.0,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              AppUser.loadingfrontColor,
+            ),
+            backgroundColor: AppUser.loadingbackgroundColor,
+          ),
+        ),
+      );
+    }
+    return SizedBox();
+  }
+
+
   Future Init() async
   {
     _pref = await SharedPreferences.getInstance();
@@ -89,6 +113,8 @@ class worker_homeState extends State<user_myEvent>
         });
       }
     }
+    events_load = true;
+    setState(() {});
   }
 
   @override
@@ -117,33 +143,35 @@ class worker_homeState extends State<user_myEvent>
         elevation: 2,
 
       ),
-
       backgroundColor: Color(0xffe3e1e1),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+        child: Stack(
           children: <Widget>[
-            SizedBox(
-              height: height/20,
-            ),
-
-            Container(
-//              color: Colors.red,
-              height: height/(2.5 / list_of_events.length),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                SizedBox(
+                  height: height/20,
+                ),
+                Container(
+                  height: height/(2.5 / list_of_events.length),
 //                      width: width / 1,
-              child: ListView.builder(
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: list_of_events.length,
-                itemBuilder: (context, index)
-                {
-                  return Event_Card(
-                    width: width,
-                    height: height,
-                    event: list_of_events[index],
-                  );
-                },
-              ),
+                  child: ListView.builder(
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: list_of_events.length,
+                    itemBuilder: (context, index)
+                    {
+                      return Event_Card(
+                        width: width,
+                        height: height,
+                        event: list_of_events[index],
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
+            loading(height),
           ],
         ),
       ),

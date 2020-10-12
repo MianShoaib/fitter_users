@@ -1,23 +1,15 @@
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:fitter_users/User_Models/fitter_event_model.dart';
-import 'package:fitter_users/User_Models/fitter_participants_model.dart';
+import 'package:fitter_users/User_Models/fiter_user_participants_model.dart';
+import 'package:fitter_users/User_Models/fitter_user_model.dart';
 import 'package:fitter_users/User_UI/card_event_vertical.dart';
 import 'package:fitter_users/User_UI/drawer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'user_editProfile.dart';
 import 'user_friends.dart';
-import 'user_login.dart';
-import 'user_myEvent.dart';
-import 'user_notification.dart';
-import 'user_privacy_page.dart';
-import 'user_purse.dart';
-import 'user_serviceAgrement.dart';
 
 
 class user_profile extends StatefulWidget
@@ -44,27 +36,26 @@ class Profile_State extends State<user_profile>
   int friends = 324;
   int followers = 681;
 
-  List listdata = [
-    listItems(
-      heading:"The Story behind the space X",
-      personname: "Sohail khan",
-      imageUrl: "images/user/pic1.JPG",
-      price:"400",
-      lesson: "Technology",
-      time: "10:30 AM to 11:00 PM",
-      address: "pir mahal TTS",
-    ),
-
-    listItems(
-      heading:"The Story behind the space X",
-      personname: "Ali Talib",
-      imageUrl: "images/user/pic1.JPG",
-      price:"600",
-      lesson: "Technology",
-      time: "11:30 AM to 12:00 PM",
-      address: "Kashmiri",
-    ),
-  ];
+  bool events_load = false;
+  Widget loading(double height)
+  {
+    if (!events_load)
+    {
+      return Center(
+        child: Container(
+          padding: EdgeInsets.only(top: height / 3),
+          child: CircularProgressIndicator(
+            strokeWidth: 5.0,
+            valueColor: AlwaysStoppedAnimation<Color>(
+              AppUser.loadingfrontColor,
+            ),
+            backgroundColor: AppUser.loadingbackgroundColor,
+          ),
+        ),
+      );
+    }
+    return SizedBox();
+  }
 
   void Init() async
   {
@@ -74,9 +65,9 @@ class Profile_State extends State<user_profile>
     url = _pref.getString("photourl");
     hometown = _pref.getString("home_town");
     area = _pref.getString("area");
-    worker = int.parse(_pref.getString("workers"));
-    friends = int.parse(_pref.getString("friends"));
-    followers = int.parse(_pref.getString("followers"));
+    worker = _pref.getInt("workers");
+    friends = _pref.getInt("friends");
+    followers = _pref.getInt("followers");
     setState(() {
     });
     ////////////////////////////////////////////////////////////////
@@ -140,6 +131,8 @@ class Profile_State extends State<user_profile>
         });
       }
     }
+    events_load = true;
+    setState(() {});
   }
 
   @override
@@ -151,7 +144,8 @@ class Profile_State extends State<user_profile>
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context)
+  {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
     return SafeArea(
@@ -386,7 +380,6 @@ class Profile_State extends State<user_profile>
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-
                     Icon(
                       Icons.location_on,
                       size: 20,
@@ -432,28 +425,28 @@ class Profile_State extends State<user_profile>
               SizedBox(
                 height: height/90,
               ),
-              Container(
-                color: Color(0xffe3e1e1),
-                height: height/2,
+              Stack(
+                children: <Widget>[
+                  Container(
+                    color: Color(0xffe3e1e1),
+                    height: height,
 //                      width: width / 1,
-                child: ListView.builder(
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: list_of_events.length,
-                  itemBuilder: (context, index)
-                  {
-                    return Event_Card(
-                      width: width,
-                      height: height,
-                      event: list_of_events[index],
-                    );
-                  },
-//                        separatorBuilder: (context, index)
-//                        {
-//                          return Divider();
-//                        },
-                ),
+                    child: ListView.builder(
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: list_of_events.length,
+                      itemBuilder: (context, index)
+                      {
+                        return Event_Card(
+                          width: width,
+                          height: height,
+                          event: list_of_events[index],
+                        );
+                      },
+                    ),
+                  ),
+                  loading(height),
+                ],
               ),
-
             ],
           ),
         ),

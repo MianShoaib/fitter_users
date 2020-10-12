@@ -110,13 +110,6 @@ class _user_signupState extends State<user_SignUp> {
     double height = MediaQuery.of(context).size.height;
     return Scaffold(
       backgroundColor: Color(0xffe3e1e1),
-//      appBar: AppBar(
-//        iconTheme: IconThemeData(
-//          color: Color(0xff8C04FF), //change your color here
-//        ),
-//        backgroundColor: Colors.white,
-//        elevation: 0,
-//      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Center(
@@ -163,14 +156,6 @@ class _user_signupState extends State<user_SignUp> {
                         topRight: Radius.circular(30),
                         bottomLeft: Radius.circular(0),
                         bottomRight: Radius.circular(0)),
-//              boxShadow: [
-//                BoxShadow(
-//                  color:Color(0xff8C04FF).withOpacity(0.9),
-//                  spreadRadius: 0,
-//                  blurRadius: 1,
-//                  offset: Offset(0, 15), // changes position of shadow
-//                ),
-//              ],
                   ),
 
                   child: SingleChildScrollView(
@@ -577,51 +562,6 @@ class _user_signupState extends State<user_SignUp> {
                             ),
                           ),
                         ),
-
-                        // User Type Selection
-                        /*SizedBox(height: height/60,),
-
-                        Padding(
-                          padding: const EdgeInsets.only(left: 40.0),
-                          child: Text(
-                            "Select User Type",
-                            style: TextStyle(color: Colors.grey, fontSize: 16.0),
-                          ),
-                        ),
-                        SizedBox(
-                          height: height/90,
-                        ),
-                        Center(
-                          child: Container(
-                            width: width/1.14,
-
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              border: Border.all(
-                                color: Colors.grey.withOpacity(0.5),
-                                width: 1.0,
-                              ),
-                              borderRadius: BorderRadius.circular(20.0),
-                            ),
-
-
-
-//                        color: Colors.yellow,
-                            child: DropdownButtonHideUnderline(
-                              child: Padding(
-                                padding: const EdgeInsets.only(left:20.0,right: 18),
-                                child: userTpe(),
-                              ),
-                            ),
-                          ),
-                        ),
-
-
-
-
-
-*/
-
                         SizedBox(
                           height: height / 30,
                         ),

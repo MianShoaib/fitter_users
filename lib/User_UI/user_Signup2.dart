@@ -42,14 +42,6 @@ class _Signup_State extends State<user_SignUp2>
 
     return Scaffold(
       backgroundColor: Color(0xffe3e1e1),
-
-//      appBar: AppBar(
-//        iconTheme: IconThemeData(
-//          color: Color(0xff8C04FF), //change your color here
-//        ),
-//        backgroundColor: Colors.white,
-//        elevation: 0,
-//      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Center(
