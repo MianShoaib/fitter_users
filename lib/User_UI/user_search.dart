@@ -409,6 +409,8 @@ class user_reviewState extends State<user_search>
         friends_list.add(request);
         list_of_friends.add(request.personname);
       }
+      friends_list = friends_list.toSet().toList();
+      list_of_friends = list_of_friends.toSet().toList();
       setState(() {});
     }
   }
@@ -416,7 +418,6 @@ class user_reviewState extends State<user_search>
   @override
   void initState() {
     Init();
-    // TODO: implement initState
     super.initState();
   }
 

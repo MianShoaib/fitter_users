@@ -25,6 +25,7 @@ class worker_followerState extends State<user_friends> {
   final String email;
   Firestore firestore;
   List<Friends> friends_list = List();
+  List<String> list_of_friends = List();
 
   worker_followerState(this.email);
 
@@ -49,8 +50,11 @@ class worker_followerState extends State<user_friends> {
             imageUrl: each.data["photourl"],
             email: each.data["email"]);
         friends_list.add(request);
+        list_of_friends.add(request.personname);
       }
-      print(friends_list);
+      friends_list = friends_list.toSet().toList();
+      list_of_friends = list_of_friends.toSet().toList();
+      print("friends_list");
       setState(() {});
     }
   }
@@ -58,7 +62,6 @@ class worker_followerState extends State<user_friends> {
   @override
   void initState() {
     Init();
-    // TODO: implement initState
     super.initState();
   }
 
@@ -104,6 +107,15 @@ class worker_followerState extends State<user_friends> {
                           width: 300,
                           alignment: Alignment.center,
                           child: TextFormField(
+                            onTap: ()
+                            {
+                              showSearch(
+                                  context: context,
+                                  delegate: Search(
+                                      all_friends: friends_list,
+                                      type: "friend",
+                                      listExample: list_of_friends));
+                            },
                             cursorColor: Colors.grey,
                             style: TextStyle(fontSize: 16, color: Colors.black),
                             decoration: InputDecoration(
@@ -296,4 +308,150 @@ class listItems {
     this.personname,
     this.imageUrl,
   });
+}
+
+
+class Search extends SearchDelegate
+{
+  final List<String> listExample;
+  final List<Friends> all_friends;
+  final String type;
+  List<String> recentList = List();
+
+  Search(
+      {this.listExample,
+        this.all_friends,
+        this.type});
+  String selectedResult = "";
+  List<Friends> friends = List();
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return <Widget>[
+      IconButton(
+        icon: Icon(Icons.close),
+        onPressed: () {
+          query = "";
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: Icon(Icons.arrow_back),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context)
+  {
+    double height = MediaQuery.of(context).size.height;
+    for (var each in all_friends) {
+      if (each.personname == selectedResult)
+      {
+        print("Friend Matched");
+        friends.add(each);
+        friends = friends.toSet().toList();
+        break;
+      }
+    }
+    if (friends != null) {
+      return Container(
+//              color: Colors.red,
+        height: height / 2,
+//                      width: width / 1,
+        padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 18.0),
+        child: ListView.builder(
+          physics: NeverScrollableScrollPhysics(),
+          itemCount: friends.length,
+          itemBuilder: (context, index) {
+            return ListTile(
+              leading: Container(
+                width: 50,
+                height: 50,
+                decoration: new BoxDecoration(
+                  color: const Color(0xff7c94b6),
+                  image: new DecorationImage(
+                    image: friends[index].imageUrl == null
+                        ? new AssetImage('images/user/pic1.JPG')
+                        : new NetworkImage(friends[index].imageUrl),
+                    fit: BoxFit.cover,
+                  ),
+                  borderRadius:
+                  new BorderRadius.all(new Radius.circular(50.0)),
+                  border: new Border.all(
+                    color: Colors.blue,
+                    width: 2.0,
+                  ),
+                ),
+              ),
+              title: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    friends[index].personname,
+                    style: TextStyle(
+                        fontSize: height / 50,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xff413564)),
+                    textAlign: TextAlign.center,
+                  ),
+                  Text(
+                    friends[index].email,
+                    style: TextStyle(
+                        fontSize: height / 60,
+//                                fontWeight: FontWeight.bold,
+                        color: Color(0xff4f4848)),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    //textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    } else {
+      return Container(
+        child: Center(
+          child: Text("No Result"),
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    List<String> suggestionList = [];
+    query.isEmpty
+        ? suggestionList = recentList //In the true case
+        : suggestionList.addAll(listExample.where(
+          (element) => element.contains(query),
+    ));
+
+    return ListView.builder(
+      itemCount: suggestionList.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(
+            suggestionList[index],
+          ),
+          leading: query.isEmpty ? Icon(Icons.access_time) : SizedBox(),
+          onTap: ()
+          {
+            selectedResult = suggestionList[index];
+            recentList.add(selectedResult);
+            showResults(context);
+          },
+        );
+      },
+    );
+  }
 }

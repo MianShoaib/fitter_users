@@ -181,40 +181,42 @@ class _user_signupState extends State<user_SignUp> {
                         SizedBox(
                           height: height / 60,
                         ),
-
-                        Center(
-                          child: CircleAvatar(
-                            backgroundImage: _image == null
-                                ? AssetImage("images/user/pic1.JPG")
-                                : FileImage(_image),
-                            radius: 48,
-                          ),
-                        ),
-
-                        SizedBox(
-                          height: height / 60,
-                        ),
                         GestureDetector(
                           onTap: getImage,
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
+                          child: Column(
                             children: <Widget>[
-                              Text(
-                                "Upload image",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey,
-                                  fontWeight: FontWeight.w500,
+                              Center(
+                                child: CircleAvatar(
+                                  backgroundImage: _image == null
+                                      ? AssetImage("images/user/pic1.JPG")
+                                      : FileImage(_image),
+                                  radius: 48,
                                 ),
                               ),
                               SizedBox(
-                                width: width / 60,
+                                height: height / 60,
                               ),
-                              Icon(
-                                Icons.camera_alt,
-                                size: 22,
-                                color: Colors.grey,
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Text(
+                                    "Upload image",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: width / 60,
+                                  ),
+                                  Icon(
+                                    Icons.camera_alt,
+                                    size: 22,
+                                    color: Colors.grey,
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -577,8 +579,6 @@ class _user_signupState extends State<user_SignUp> {
                                   ShowToast('Please pick a Profile Image');
                                 } else if (!dateselected) {
                                   ShowToast('Please set Birth Date');
-                                } else if (!genderselected) {
-                                  ShowToast('Please select Gender');
                                 } else {
                                   Navigator.push(
                                       context,

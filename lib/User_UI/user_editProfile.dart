@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:fitter_users/User_UI/user_home.dart';
 import 'package:fitter_users/User_UI/user_login.dart';
 import 'package:fitter_users/User_UI/user_navigation_bar.dart';
 import 'package:flutter/cupertino.dart';
@@ -37,14 +38,14 @@ class _admin_loginState extends State<user_editProfile> {
   Firestore firestoreinstance = Firestore.instance;
   //--------------------------------------------------------
   var name_controller = TextEditingController(),
-      pass1_controller = TextEditingController(),
-      pass2_controller = TextEditingController(),
+      /*pass1_controller = TextEditingController(),
+      pass2_controller = TextEditingController(),*/
       area_controller = TextEditingController(),
       town_controller = TextEditingController();
 
   final _name_Key = GlobalKey<FormState>(),
-      _pass1_key = GlobalKey<FormState>(),
-      _pass2_key = GlobalKey<FormState>(),
+      /*_pass1_key = GlobalKey<FormState>(),
+      _pass2_key = GlobalKey<FormState>(),*/
       _town_Key = GlobalKey<FormState>(),
       _area_Key = GlobalKey<FormState>();
 
@@ -167,7 +168,10 @@ class _admin_loginState extends State<user_editProfile> {
     url = taskSnapshot.ref.path;
   }
 
-  void Init() async {
+  void Init() async
+  {
+    user = await FirebaseAuth.instance.currentUser();
+    print(user.email);
     _pref = await SharedPreferences.getInstance();
     email = _pref.getString("email");
     name = _pref.getString("fullname");
@@ -351,7 +355,7 @@ class _admin_loginState extends State<user_editProfile> {
                             ],
                           ),
                         ),
-                        Padding(
+                        /*Padding(
                           padding: const EdgeInsets.only(left: 40.0),
                           child: Text(
                             "New Password",
@@ -492,7 +496,7 @@ class _admin_loginState extends State<user_editProfile> {
                               )
                             ],
                           ),
-                        ),
+                        ),*/
                         Padding(
                           padding: const EdgeInsets.only(left: 40.0),
                           child: Text(
@@ -707,11 +711,11 @@ class _admin_loginState extends State<user_editProfile> {
                         Center(
                           child: GestureDetector(
                             onTap: () async
-                            {
+                            /*{
                               if (_name_Key.currentState.validate() &&
                                   _area_Key.currentState.validate() &&
-                                  _pass1_key.currentState.validate() &&
-                                  _pass2_key.currentState.validate() &&
+                                  *//*_pass1_key.currentState.validate() &&
+                                  _pass2_key.currentState.validate() &&*//*
                                   _town_Key.currentState.validate())
                               {
                                 if (pass1 == pass2)
@@ -740,10 +744,36 @@ class _admin_loginState extends State<user_editProfile> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => user_login()));
-                                } else {
+                                }
+                                else {
                                   ShowToast("Pass Doesn't Match");
                                 }
                               }
+                            }*/
+                            {
+                              user = await FirebaseAuth.instance.currentUser();
+                              if (imagepicked)
+                              {
+                                await uploadImage(context);
+                                await downloadImage();
+                              }
+                              await firestoreinstance
+                                  .collection("users")
+                                  .document(email)
+                                  .updateData({
+                                "fullname": name,
+                                "birth_date": selectedDate,
+                                "home_town": hometown,
+                                "gender": gendertype.toString(),
+                                "area": area,
+                              });
+                              print("User Stored on firestore");
+                              await Storepref();
+                              await ShowToast("Changes Updated");
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => user_navigation_bar()));
                             },
                             child: Container(
                               width: width / 1.2,
