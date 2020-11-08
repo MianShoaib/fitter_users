@@ -201,8 +201,6 @@ class Profile_State extends State<user_profile>
                         ),
                       ],
                     ),
-
-
                     Column(
                       children: <Widget>[
                         Text(
@@ -229,7 +227,6 @@ class Profile_State extends State<user_profile>
                         ),
                       ],
                     ),
-
                     GestureDetector(
                       onTap: ()
                       {
@@ -265,7 +262,6 @@ class Profile_State extends State<user_profile>
                         ],
                       ),
                     ),
-
                     Column(
                       children: <Widget>[
                         Text(
@@ -292,7 +288,6 @@ class Profile_State extends State<user_profile>
                         ),
                       ],
                     ),
-
                   ],
                 ),
               ),
@@ -301,8 +296,8 @@ class Profile_State extends State<user_profile>
 //                thickness: 1,
               ),
               SizedBox(height: height/60,),
-              GestureDetector(
-                onTap: ()
+              FlatButton(
+                onPressed: ()
                 {
                   Navigator.push(
                       context,

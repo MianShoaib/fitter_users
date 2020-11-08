@@ -50,7 +50,7 @@ class _user_signupState extends State<user_SignUp> {
         textColor: Colors.white);
   }
 
-  var gendertype = "1";
+  var gendertype = "2";
   DropdownButton gender() => DropdownButton<String>(
         icon: Icon(
           Icons.arrow_drop_down_circle,

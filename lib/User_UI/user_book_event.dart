@@ -438,7 +438,7 @@ class book_eventState extends State<book_event> {
                                   shape: CircleBorder(),
                                   image: DecorationImage(
                                     fit: BoxFit.cover,
-                                    image: NetworkImage(event.Worker_url),
+                                    image: event.Worker_url==null ? AssetImage('images/pic1.JPG') : NetworkImage(event.Worker_url),
                                   )),
                             ),
 //                            child: CircleAvatar(
@@ -730,7 +730,7 @@ class book_eventState extends State<book_event> {
     List<Widget> list = List();
     for (var part in event.list_participants) {
       var image = CircleAvatar(
-        backgroundImage: NetworkImage(part.photourl),
+        backgroundImage: part.photourl == null ? AssetImage('images/pic1.JPG') : NetworkImage(part.photourl),
         radius: 16,
       );
       list.add(image);

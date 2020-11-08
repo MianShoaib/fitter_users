@@ -31,7 +31,11 @@ class Event_Card extends StatelessWidget
             Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (context) => user_event(event: event, participant: event.list_participants,)));
+                    builder: (context) => book_event(event: event)));
+            /*Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => user_event(event: event, participant: event.list_participants,)));*/
           },
           title: Row(
             mainAxisAlignment: MainAxisAlignment.start,

@@ -463,7 +463,7 @@ class _worker_loginState extends State<user_login> {
                                   fontSize: 15.0,
                                 ),
                               ),
-                              new FlatButton(
+                              FlatButton(
                                 child: new Text(
                                   "SignUp here",
                                   style: TextStyle(
@@ -473,11 +473,9 @@ class _worker_loginState extends State<user_login> {
                                   ),
                                   textAlign: TextAlign.end,
                                 ),
-                                onPressed: () => {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => user_SignUp()))
+                                onPressed: ()
+                                {
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => user_SignUp()));
                                 },
                               ),
                             ],
