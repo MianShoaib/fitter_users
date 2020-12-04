@@ -475,15 +475,15 @@ class book_eventState extends State<book_event> {
                     height: height / 60,
                   ),
                   Center(
-                    child: GestureDetector(
-                      onTap: () {
+                    child: RaisedButton(
+                      onPressed: () {
                         return showDialog(
                           context: context,
                           builder: (context12) {
                             return AlertDialog(
                                 shape: RoundedRectangleBorder(
                                     borderRadius:
-                                        BorderRadius.all(Radius.circular(20))),
+                                    BorderRadius.all(Radius.circular(20))),
                                 content: Container(
                                   height: height / 9,
                                   child: Column(
@@ -494,9 +494,9 @@ class book_eventState extends State<book_event> {
                                       ),
                                       Row(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.center,
+                                        CrossAxisAlignment.center,
                                         mainAxisAlignment:
-                                            MainAxisAlignment.center,
+                                        MainAxisAlignment.center,
                                         children: <Widget>[
                                           ButtonTheme(
                                             minWidth: width / 4,
@@ -504,8 +504,8 @@ class book_eventState extends State<book_event> {
                                             child: FlatButton(
                                               shape: new RoundedRectangleBorder(
                                                 borderRadius:
-                                                    new BorderRadius.circular(
-                                                        20.0),
+                                                new BorderRadius.circular(
+                                                    20.0),
                                                 //    side: BorderSide(color: Color(0xff2CBE77))
                                               ),
                                               color: Color(0xff9847b7),
@@ -515,8 +515,8 @@ class book_eventState extends State<book_event> {
                                                 style: TextStyle(
                                                     fontSize: height / 50,
                                                     fontWeight: FontWeight.w500
-                                                    //letterSpacing: 1
-                                                    ),
+                                                  //letterSpacing: 1
+                                                ),
                                               ),
                                               onPressed: () async
                                               {
@@ -538,15 +538,15 @@ class book_eventState extends State<book_event> {
                                                 Firestore firestore =
                                                     Firestore.instance;
                                                 CollectionReference
-                                                    eventsreference =
-                                                    await firestore
-                                                        .collection("users")
-                                                        .document(email)
-                                                        .collection("Events");
+                                                eventsreference =
+                                                await firestore
+                                                    .collection("users")
+                                                    .document(email)
+                                                    .collection("Events");
                                                 var docs = await eventsreference
                                                     .getDocuments();
                                                 List<DocumentSnapshot>
-                                                    event_docs = docs.documents;
+                                                event_docs = docs.documents;
                                                 if (event_docs.length != null &&
                                                     event_docs.length != 0)
                                                 {
@@ -607,17 +607,17 @@ class book_eventState extends State<book_event> {
                                                   }
                                                 }
                                                 else
-                                                  {
-                                                    Navigator.pop(context12);
+                                                {
+                                                  Navigator.pop(context12);
                                                   ShowToast(
                                                       "Booking the Event");
-                                                    await firestore
+                                                  await firestore
                                                       .collection("Events")
                                                       .document(event.eventID1)
                                                       .collection("Event")
                                                       .document(event.eventID2)
                                                       .collection(
-                                                          "participants")
+                                                      "participants")
                                                       .document()
                                                       .setData({
                                                     "name": name,
@@ -625,7 +625,7 @@ class book_eventState extends State<book_event> {
                                                     "rating": rating,
                                                     "url": url,
                                                   });
-                                                    await firestore
+                                                  await firestore
                                                       .collection("users")
                                                       .document(email)
                                                       .collection("Events")
@@ -634,18 +634,18 @@ class book_eventState extends State<book_event> {
                                                     "worker" : event.worker,
                                                     "eventID": event.eventID1
                                                   });
-                                                    DocumentReference worker_noti_ref = await firestore.collection("workers").document(event.worker).collection("notifications").document();
-                                                    worker_noti_ref.setData({
-                                                      "desc": "Booked ${event.title}.",
-                                                      "name": name,
-                                                      "url": url,
-                                                    });
+                                                  DocumentReference worker_noti_ref = await firestore.collection("workers").document(event.worker).collection("notifications").document();
+                                                  worker_noti_ref.setData({
+                                                    "desc": "Booked ${event.title}.",
+                                                    "name": name,
+                                                    "url": url,
+                                                  });
                                                   ShowToast(
                                                       "Event Booked Successfully.");
-                                                    Navigator.push(
-                                                        context,
-                                                        MaterialPageRoute(
-                                                            builder: (context) => user_navigation_bar()));
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                          builder: (context) => user_navigation_bar()));
                                                 }
                                               },
                                             ),
@@ -659,8 +659,8 @@ class book_eventState extends State<book_event> {
                                             child: FlatButton(
                                               shape: new RoundedRectangleBorder(
                                                 borderRadius:
-                                                    new BorderRadius.circular(
-                                                        20.0),
+                                                new BorderRadius.circular(
+                                                    20.0),
                                                 //    side: BorderSide(color: Color(0xff2CBE77))
                                               ),
                                               color: Color(0xff9847b7),
@@ -670,8 +670,8 @@ class book_eventState extends State<book_event> {
                                                 style: TextStyle(
                                                     fontSize: height / 50,
                                                     fontWeight: FontWeight.w500
-                                                    //letterSpacing: 1
-                                                    ),
+                                                  //letterSpacing: 1
+                                                ),
                                               ),
                                               onPressed: () {
                                                 Navigator.pop(context);
@@ -686,30 +686,19 @@ class book_eventState extends State<book_event> {
                           },
                         );
                       },
-                      child: Container(
-                        width: width / 1.2,
-                        height: 50.0,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(100.0),
-                          gradient: LinearGradient(
-                            begin: Alignment(0.0, -1.0),
-                            end: Alignment(0.0, 1.0),
-                            colors: [
-                              const Color(0xff9847b7),
-                              const Color(0xffbc5dff)
-                            ],
-                            stops: [0.0, 1.0],
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "Book Event",
-                            style: TextStyle(
-                                color: Colors.white70,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16),
-                          ),
-                        ),
+
+                      padding: EdgeInsets.symmetric(vertical: height/50,horizontal: width/2.8),
+                      color: Color(0xff9847b7),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(18.0),
+                          side: BorderSide(color: Color(0xffbc5dff))
+                      ),
+                      child: Text(
+                        "Book Event",
+                        style: TextStyle(
+                            color: Colors.white70,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16),
                       ),
                     ),
                   ),

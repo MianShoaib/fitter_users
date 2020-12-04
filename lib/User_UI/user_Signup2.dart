@@ -240,7 +240,55 @@ class _Signup_State extends State<user_SignUp2>
                                   stops: [0.0, 1.0],
                                 ),
                               ),
-                              child: Center(child: Text("SignUp",
+                              child: RaisedButton(
+                                onPressed: () async
+                                {
+                                  if(_area_Key.currentState.validate())
+                                  {print(fullname);
+                                  print(user_email);
+                                  print(user_pass);
+                                  print(birth_date);
+                                  print(home_town);
+                                  print(gender);
+                                  print(area);}
+
+                                  FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+                                  AuthResult result = await _firebaseAuth.createUserWithEmailAndPassword(email: user_email, password: user_pass);
+                                  FirebaseUser user = result.user;
+                                  if(result!=null)
+                                  {
+                                    print("User Created");
+                                    AppUser worker = new AppUser(
+                                        fullname: fullname,
+                                        email: user_email,
+                                        home_town: home_town,
+                                        birth_date: birth_date,
+                                        area: area,
+                                        gender: gender,
+                                        photourl: user_email,
+                                        image: imagefile);
+                                    Purse purse = new Purse(
+                                      name: "",
+                                      cardnumber: "",
+                                      cv_number: "",
+                                      M_Y: "",
+                                    );
+                                    await worker.storeWorker(user, worker, purse, false);
+                                    print("User stored successfully");
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => user_login()));
+                                  }
+                                },
+
+                                padding: EdgeInsets.symmetric(vertical: height/50,horizontal: width/2.8),
+                                color: Color(0xff9847b7),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18.0),
+                                    side: BorderSide(color: Color(0xffbc5dff))
+                                ),
+                                child: Text("SignUp",
                                 style: TextStyle(
                                     color: Colors.white70,
                                     fontWeight: FontWeight.bold,

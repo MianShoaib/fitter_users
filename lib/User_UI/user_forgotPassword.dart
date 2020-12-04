@@ -133,8 +133,8 @@ class _worker_forgotState extends State<user_forget> {
                       height: height / 40,
                     ),
                     Center(
-                      child: GestureDetector(
-                        onTap: () async {
+                      child: RaisedButton(
+                        onPressed: () async {
                           await _firebaseAuth
                               .sendPasswordResetEmail(email: email)
                               .whenComplete(() {
@@ -166,19 +166,19 @@ class _worker_forgotState extends State<user_forget> {
                                             ),
                                             Row(
                                               crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
+                                              CrossAxisAlignment.center,
                                               mainAxisAlignment:
-                                                  MainAxisAlignment.center,
+                                              MainAxisAlignment.center,
                                               children: <Widget>[
                                                 ButtonTheme(
                                                   minWidth: width / 4,
                                                   height: height / 18,
                                                   child: FlatButton(
                                                     shape:
-                                                        new RoundedRectangleBorder(
+                                                    new RoundedRectangleBorder(
                                                       borderRadius:
-                                                          new BorderRadius
-                                                              .circular(20.0),
+                                                      new BorderRadius
+                                                          .circular(20.0),
                                                       //    side: BorderSide(color: Color(0xff2CBE77))
                                                     ),
                                                     color: Color(0xff9847b7),
@@ -188,9 +188,9 @@ class _worker_forgotState extends State<user_forget> {
                                                       style: TextStyle(
                                                           fontSize: height / 50,
                                                           fontWeight:
-                                                              FontWeight.w500
-                                                          //letterSpacing: 1
-                                                          ),
+                                                          FontWeight.w500
+                                                        //letterSpacing: 1
+                                                      ),
                                                     ),
                                                     onPressed: () {
                                                       Navigator.push(
@@ -209,30 +209,20 @@ class _worker_forgotState extends State<user_forget> {
                                 });
                           });
                         },
-                        child: Container(
-                          width: width / 1.2,
-                          height: 50.0,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100.0),
-                            gradient: LinearGradient(
-                              begin: Alignment(0.0, -1.0),
-                              end: Alignment(0.0, 1.0),
-                              colors: [
-                                const Color(0xff9847b7),
-                                const Color(0xffbc5dff)
-                              ],
-                              stops: [0.0, 1.0],
-                            ),
-                          ),
-                          child: Center(
-                            child: Text(
-                              "Reset",
-                              style: TextStyle(
-                                  color: Colors.white70,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16),
-                            ),
-                          ),
+                        elevation: 2,
+                        padding: EdgeInsets.symmetric(vertical: height/50,horizontal: width/2.8),
+                        color: Color(0xff9847b7),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18.0),
+                            side: BorderSide(color: Color(0xffbc5dff))
+                        ),
+
+                        child: Text(
+                          "Reset",
+                          style: TextStyle(
+                              color: Colors.white70,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16),
                         ),
                       ),
                     ),

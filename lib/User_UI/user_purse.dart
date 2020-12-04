@@ -359,62 +359,54 @@ class purse_updateState extends State<user_purse>
                     ),
 
                     Center(
-                      child: GestureDetector(
-                        onTap: () async
+                      child: RaisedButton(
+                        onPressed: () async
                         {
                           print("Updating Purse");
-                        if(_name_Key.currentState.validate() &&
-                        _cv_number_Key.currentState.validate() &&
-                        _M_Y_key.currentState.validate() &&
-                        _cardnumber_key.currentState.validate())
-                        {
-                          _pref.setString("cardnumber", cardnumber);
-                        _pref.setString("name", name);
-                        _pref.setString("cv_number", cv_number);
-                        _pref.setString("M_Y", M_Y);
-                        bool store = await _pref.commit();
-                        if(store)
-                        {
-                        print("Purse Stored in Preferences as well");
-                        }
+                          if(_name_Key.currentState.validate() &&
+                              _cv_number_Key.currentState.validate() &&
+                              _M_Y_key.currentState.validate() &&
+                              _cardnumber_key.currentState.validate())
+                          {
+                            _pref.setString("cardnumber", cardnumber);
+                            _pref.setString("name", name);
+                            _pref.setString("cv_number", cv_number);
+                            _pref.setString("M_Y", M_Y);
+                            bool store = await _pref.commit();
+                            if(store)
+                            {
+                              print("Purse Stored in Preferences as well");
+                            }
 
-                        final firestore = Firestore.instance;
-                        firestore.collection("users").document(user.email)
-                            .collection("Purse").document(user.email).updateData({
-                        "cardnumber": cardnumber,
-                        "name": name,
-                        "cv_number": cv_number,
-                        "M_Y": M_Y
-                        })
-                            .then((value)
-                        {
-                        print("User Purse Updated in Preferences as well");
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => user_navigation_bar()));
-                        });
-                        }},
-                        child: Container(
-                          width: width/1.2,
-                          height: 50.0,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100.0),
-                            gradient: LinearGradient(
-                              begin: Alignment(0.0, -1.0),
-                              end: Alignment(0.0, 1.0),
-                              colors: [const Color(0xff9847b7), const Color(0xffbc5dff)],
-                              stops: [0.0, 1.0],
-                            ),
-                          ),
-                          child: Center(child: Text("Update",
-                            style: TextStyle(
-                                color: Colors.white70,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16
-                            ),),),
+                            final firestore = Firestore.instance;
+                            firestore.collection("users").document(user.email)
+                                .collection("Purse").document(user.email).updateData({
+                              "cardnumber": cardnumber,
+                              "name": name,
+                              "cv_number": cv_number,
+                              "M_Y": M_Y
+                            })
+                                .then((value)
+                            {
+                              print("User Purse Updated in Preferences as well");
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => user_navigation_bar()));
+                            });
+                          }},
+                        padding: EdgeInsets.symmetric(vertical: height/50,horizontal: width/2.8),
+                        color: Color(0xff9847b7),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(18.0),
+                            side: BorderSide(color: Color(0xffbc5dff))
                         ),
-                      ),
+                        child: Text("Update",
+                        style: TextStyle(
+                            color: Colors.white70,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16
+                        ),),),
                     ),
 
                     SizedBox(

@@ -709,47 +709,48 @@ class _admin_loginState extends State<user_editProfile> {
                           height: height / 30,
                         ),
                         Center(
-                          child: GestureDetector(
-                            onTap: () async
+                          child: RaisedButton(
+
+                            onPressed: () async
                             /*{
-                              if (_name_Key.currentState.validate() &&
-                                  _area_Key.currentState.validate() &&
-                                  *//*_pass1_key.currentState.validate() &&
-                                  _pass2_key.currentState.validate() &&*//*
-                                  _town_Key.currentState.validate())
+                          if (_name_Key.currentState.validate() &&
+                              _area_Key.currentState.validate() &&
+                              *//*_pass1_key.currentState.validate() &&
+                              _pass2_key.currentState.validate() &&*//*
+                              _town_Key.currentState.validate())
+                          {
+                            if (pass1 == pass2)
+                            {
+                              user = await FirebaseAuth.instance.currentUser();
+                              if (imagepicked)
                               {
-                                if (pass1 == pass2)
-                                {
-                                  user = await FirebaseAuth.instance.currentUser();
-                                  if (imagepicked)
-                                  {
-                                    await uploadImage(context);
-                                    await downloadImage();
-                                  }
-                                  await firestoreinstance
-                                      .collection("users")
-                                      .document(user.email)
-                                      .updateData({
-                                    "fullname": name,
-                                    "birth_date": selectedDate,
-                                    "home_town": hometown,
-                                    "gender": gendertype.toString(),
-                                    "area": area,
-                                  });
-                                  print("User Stored on firestore");
-                                  await Storepref();
-                                  user.updatePassword(pass1).whenComplete(() => print("Password Updated"));
-                                  await FirebaseAuth.instance.signOut();
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => user_login()));
-                                }
-                                else {
-                                  ShowToast("Pass Doesn't Match");
-                                }
+                                await uploadImage(context);
+                                await downloadImage();
                               }
-                            }*/
+                              await firestoreinstance
+                                  .collection("users")
+                                  .document(user.email)
+                                  .updateData({
+                                "fullname": name,
+                                "birth_date": selectedDate,
+                                "home_town": hometown,
+                                "gender": gendertype.toString(),
+                                "area": area,
+                              });
+                              print("User Stored on firestore");
+                              await Storepref();
+                              user.updatePassword(pass1).whenComplete(() => print("Password Updated"));
+                              await FirebaseAuth.instance.signOut();
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => user_login()));
+                            }
+                            else {
+                              ShowToast("Pass Doesn't Match");
+                            }
+                          }
+                          }*/
                             {
                               user = await FirebaseAuth.instance.currentUser();
                               if (imagepicked)
@@ -775,30 +776,18 @@ class _admin_loginState extends State<user_editProfile> {
                                   MaterialPageRoute(
                                       builder: (context) => user_navigation_bar()));
                             },
-                            child: Container(
-                              width: width / 1.2,
-                              height: 50.0,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(100.0),
-                                gradient: LinearGradient(
-                                  begin: Alignment(0.0, -1.0),
-                                  end: Alignment(0.0, 1.0),
-                                  colors: [
-                                    const Color(0xff9847b7),
-                                    const Color(0xffbc5dff)
-                                  ],
-                                  stops: [0.0, 1.0],
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  "Update",
-                                  style: TextStyle(
-                                      color: Colors.white70,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
-                                ),
-                              ),
+                            padding: EdgeInsets.symmetric(vertical: height/50,horizontal: width/2.8),
+                            color: Color(0xff9847b7),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                                side: BorderSide(color: Color(0xffbc5dff))
+                            ),
+                            child: Text(
+                              "Update",
+                              style: TextStyle(
+                                  color: Colors.white70,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16),
                             ),
                           ),
                         ),

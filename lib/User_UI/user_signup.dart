@@ -569,8 +569,8 @@ class _user_signupState extends State<user_SignUp> {
                         ),
 
                         Center(
-                          child: GestureDetector(
-                            onTap: () {
+                          child: RaisedButton(
+                            onPressed: () {
                               if (_name_Key.currentState.validate() &&
                                   _home_key.currentState.validate() &&
                                   _pass_Key.currentState.validate() &&
@@ -584,41 +584,31 @@ class _user_signupState extends State<user_SignUp> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) => user_SignUp2(
-                                                Fullname: fullname,
-                                                User_Email: email,
-                                                User_Pass: pass,
-                                                Birth_Date: selectedDate,
-                                                Gender: gendertype,
-                                                Home_Town: hometown,
-                                                Image_File: _image,
-                                              )));
+                                            Fullname: fullname,
+                                            User_Email: email,
+                                            User_Pass: pass,
+                                            Birth_Date: selectedDate,
+                                            Gender: gendertype,
+                                            Home_Town: hometown,
+                                            Image_File: _image,
+                                          )));
                                 }
                               }
                             },
-                            child: Container(
-                              width: width / 1.2,
-                              height: 50.0,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(100.0),
-                                gradient: LinearGradient(
-                                  begin: Alignment(0.0, -1.0),
-                                  end: Alignment(0.0, 1.0),
-                                  colors: [
-                                    const Color(0xff9847b7),
-                                    const Color(0xffbc5dff)
-                                  ],
-                                  stops: [0.0, 1.0],
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  "Countine",
-                                  style: TextStyle(
-                                      color: Colors.white70,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
-                                ),
-                              ),
+
+                            padding: EdgeInsets.symmetric(vertical: height/50,horizontal: width/2.8),
+                            color: Color(0xff9847b7),
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(18.0),
+                                side: BorderSide(color: Color(0xffbc5dff))
+                            ),
+
+                            child: Text(
+                              "Countine",
+                              style: TextStyle(
+                                  color: Colors.white70,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16),
                             ),
                           ),
                         ),

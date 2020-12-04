@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:fitter_users/User_UI/user_walkthrough.dart';
 import 'package:fitter_users/user_Splash.dart';
 
+import 'User_UI/user_navigation_bar.dart';
+
 void main() => runApp(MyApp());
 
 
@@ -18,7 +20,7 @@ class MyApp extends StatelessWidget
       debugShowCheckedModeBanner: false,
       home: new user_Splash(),
       routes: <String, WidgetBuilder>{
-        '/Home': (BuildContext context) => new user_walkthrough()
+        '/Home': (BuildContext context) => new user_navigation_bar()
       },
     );
   }

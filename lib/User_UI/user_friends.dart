@@ -104,7 +104,7 @@ class worker_followerState extends State<user_friends> {
                       children: [
                         Container(
                           height: 50,
-                          width: 300,
+                          width: 290,
                           alignment: Alignment.center,
                           child: TextFormField(
                             onTap: ()

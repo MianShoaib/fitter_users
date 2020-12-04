@@ -255,8 +255,8 @@ class _worker_loginState extends State<user_login> {
                         ),
                       ),
                       Center(
-                        child: GestureDetector(
-                          onTap: () async
+                        child: RaisedButton(
+                          onPressed: () async
                           {
                             if (_email_Key.currentState.validate() &&
                                 _pass_key.currentState.validate())
@@ -278,30 +278,19 @@ class _worker_loginState extends State<user_login> {
                               }
                             }
                           },
-                          child: Container(
-                            width: width / 1.2,
-                            height: 50.0,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(100.0),
-                              gradient: LinearGradient(
-                                begin: Alignment(0.0, -1.0),
-                                end: Alignment(0.0, 1.0),
-                                colors: [
-                                  const Color(0xff9847b7),
-                                  const Color(0xffbc5dff)
-                                ],
-                                stops: [0.0, 1.0],
-                              ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                "Login",
-                                style: TextStyle(
-                                    color: Colors.white70,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16),
-                              ),
-                            ),
+                          padding: EdgeInsets.symmetric(vertical: height/50,horizontal: width/2.8),
+                          color: Color(0xff9847b7),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18.0),
+                              side: BorderSide(color: Color(0xffbc5dff))
+                          ),
+
+                          child: Text(
+                            "Login",
+                            style: TextStyle(
+                                color: Colors.white70,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16),
                           ),
                         ),
                       ),

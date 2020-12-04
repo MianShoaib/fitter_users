@@ -210,46 +210,33 @@ class user_findfriends extends State<user_find_friends> {
                                   overflow: TextOverflow.ellipsis,
                                   //textAlign: TextAlign.center,
                                 ),
-                                trailing: GestureDetector(
-                                  onTap: () async
+                                trailing: RaisedButton(
+                                  onPressed: () async
                                   {
                                     print("Send Request");
                                     if(listdata[index].status == "Send Request")
-                                      {
-                                        sendRequest(listdata[index].email);
-                                        listdata[index].status = "Request Sent";
-                                        setState(() {});
-                                      }
+                                    {
+                                      sendRequest(listdata[index].email);
+                                      listdata[index].status = "Request Sent";
+                                      setState(() {});
+                                    }
                                     else
-                                      {
-                                        ShowToast("Request Already Sent.");
-                                      }
+                                    {
+                                      ShowToast("Request Already Sent.");
+                                    }
                                   },
-                                  child: Container(
-                                    width: width / 3,
-                                    height: 35.0,
-                                    decoration: BoxDecoration(
-                                      borderRadius:
-                                          BorderRadius.circular(100.0),
-                                      gradient: LinearGradient(
-                                        begin: Alignment(0.0, -1.0),
-                                        end: Alignment(0.0, 1.0),
-                                        colors: [
-                                          const Color(0xff8c04ff),
-                                          const Color(0xffbc5dff)
-                                        ],
-                                        stops: [0.0, 1.0],
-                                      ),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        '${listdata[index].status}',
-                                        style: TextStyle(
-                                            color: Colors.white70,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 15),
-                                      ),
-                                    ),
+                                  padding: EdgeInsets.symmetric(vertical: height/80,horizontal: width/20),
+                                  color: Color(0xff9847b7),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(18.0),
+                                      side: BorderSide(color: Color(0xffbc5dff))
+                                  ),
+                                  child: Text(
+                                    '${listdata[index].status}',
+                                    style: TextStyle(
+                                        color: Colors.white70,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14),
                                   ),
                                 ),
                               ),

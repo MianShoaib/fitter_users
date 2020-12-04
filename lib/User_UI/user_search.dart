@@ -11,6 +11,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'drawer.dart';
 import 'package:flutter_range_slider/flutter_range_slider.dart' as frs;
+import 'profileDetail.dart';
+
 
 class user_search extends StatefulWidget {
   @override
@@ -947,7 +949,7 @@ class user_reviewState extends State<user_search>
         children: <Widget>[
           Container(
             height: lessons_list.length != null || lessons_list.length != 0
-                ? height / (12 / lessons_list.length)
+                ? height / (10 / lessons_list.length)
                 : height / 10,
             padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 18.0),
             child: ListView.builder(
@@ -955,22 +957,30 @@ class user_reviewState extends State<user_search>
               itemCount: lessons_list.length,
               itemBuilder: (context, index) {
                 return ListTile(
-                  leading: Container(
-                    width: 50,
-                    height: 50,
-                    decoration: new BoxDecoration(
-                      color: const Color(0xff7c94b6),
-                      image: new DecorationImage(
-                        image: lessons_list[index].imageUrl == null ||
-                                lessons_list[index].title == "Admin"
-                            ? new AssetImage(lessons_list[index].imageUrl)
-                            : new NetworkImage(lessons_list[index].imageUrl),
-                        fit: BoxFit.cover,
-                      ),
-                      borderRadius: new BorderRadius.all(new Radius.circular(50.0)),
-                      border: new Border.all(
-                        color: Colors.blue,
-                        width: 2.0,
+                  leading: GestureDetector(
+                    onTap: (){
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => profileDetail()));
+                    },
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: new BoxDecoration(
+                        color: const Color(0xff7c94b6),
+                        image: new DecorationImage(
+                          image: lessons_list[index].imageUrl == null ||
+                                  lessons_list[index].title == "Admin"
+                              ? new AssetImage(lessons_list[index].imageUrl)
+                              : new NetworkImage(lessons_list[index].imageUrl),
+                          fit: BoxFit.cover,
+                        ),
+                        borderRadius: new BorderRadius.all(new Radius.circular(50.0)),
+                        border: new Border.all(
+                          color: Colors.blue,
+                          width: 2.0,
+                        ),
                       ),
                     ),
                   ),
@@ -1041,22 +1051,30 @@ class user_reviewState extends State<user_search>
                     itemBuilder: (context, int l_index)
                     {
                       return ListTile(
-                        leading: Container(
-                          width: 50,
-                          height: 50,
-                          decoration: new BoxDecoration(
-                            color: const Color(0xff7c94b6),
-                            image: new DecorationImage(
-                              image: loved_list[l_index].imageUrl == null
-                                  ? new AssetImage('images/user/pic1.JPG')
-                                  : new NetworkImage(loved_list[l_index].imageUrl),
-                              fit: BoxFit.cover,
-                            ),
-                            borderRadius:
-                                new BorderRadius.all(new Radius.circular(50.0)),
-                            border: new Border.all(
-                              color: Colors.blue,
-                              width: 2.0,
+                        leading: GestureDetector(
+                          onTap: (){
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => profileDetail()));
+                          },
+                          child: Container(
+                            width: 50,
+                            height: 50,
+                            decoration: new BoxDecoration(
+                              color: const Color(0xff7c94b6),
+                              image: new DecorationImage(
+                                image: loved_list[l_index].imageUrl == null
+                                    ? new AssetImage('images/user/pic1.JPG')
+                                    : new NetworkImage(loved_list[l_index].imageUrl),
+                                fit: BoxFit.cover,
+                              ),
+                              borderRadius:
+                                  new BorderRadius.all(new Radius.circular(50.0)),
+                              border: new Border.all(
+                                color: Colors.blue,
+                                width: 2.0,
+                              ),
                             ),
                           ),
                         ),
@@ -1252,23 +1270,31 @@ class user_reviewState extends State<user_search>
                           itemBuilder: (context, index)
                           {
                             return ListTile(
-                              leading: Container(
-                                width: 50,
-                                height: 50,
-                                decoration: new BoxDecoration(
-                                  color: const Color(0xff7c94b6),
-                                  image: new DecorationImage(
-                                    image: highrated_list[index].imageUrl == null
-                                        ? new AssetImage('images/user/pic1.JPG')
-                                        : new NetworkImage(
-                                            highrated_list[index].imageUrl),
-                                    fit: BoxFit.cover,
-                                  ),
-                                  borderRadius: new BorderRadius.all(
-                                      new Radius.circular(50.0)),
-                                  border: new Border.all(
-                                    color: Colors.blue,
-                                    width: 2.0,
+                              leading: GestureDetector(
+                                onTap: (){
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => profileDetail()));
+                                },
+                                child: Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: new BoxDecoration(
+                                    color: const Color(0xff7c94b6),
+                                    image: new DecorationImage(
+                                      image: highrated_list[index].imageUrl == null
+                                          ? new AssetImage('images/user/pic1.JPG')
+                                          : new NetworkImage(
+                                              highrated_list[index].imageUrl),
+                                      fit: BoxFit.cover,
+                                    ),
+                                    borderRadius: new BorderRadius.all(
+                                        new Radius.circular(50.0)),
+                                    border: new Border.all(
+                                      color: Colors.blue,
+                                      width: 2.0,
+                                    ),
                                   ),
                                 ),
                               ),
@@ -1397,22 +1423,30 @@ class user_reviewState extends State<user_search>
                     itemCount: friends_list.length,
                     itemBuilder: (context, index) {
                       return ListTile(
-                        leading: Container(
-                          width: 50,
-                          height: 50,
-                          decoration: new BoxDecoration(
-                            color: const Color(0xff7c94b6),
-                            image: new DecorationImage(
-                              image: friends_list[index].imageUrl == null
-                                  ? new AssetImage('images/user/pic1.JPG')
-                                  : new NetworkImage(friends_list[index].imageUrl),
-                              fit: BoxFit.cover,
-                            ),
-                            borderRadius:
-                                new BorderRadius.all(new Radius.circular(50.0)),
-                            border: new Border.all(
-                              color: Colors.blue,
-                              width: 2.0,
+                        leading: GestureDetector(
+                          onTap: (){
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => profileDetail()));
+                          },
+                          child: Container(
+                            width: 50,
+                            height: 50,
+                            decoration: new BoxDecoration(
+                              color: const Color(0xff7c94b6),
+                              image: new DecorationImage(
+                                image: friends_list[index].imageUrl == null
+                                    ? new AssetImage('images/user/pic1.JPG')
+                                    : new NetworkImage(friends_list[index].imageUrl),
+                                fit: BoxFit.cover,
+                              ),
+                              borderRadius:
+                                  new BorderRadius.all(new Radius.circular(50.0)),
+                              border: new Border.all(
+                                color: Colors.blue,
+                                width: 2.0,
+                              ),
                             ),
                           ),
                         ),
