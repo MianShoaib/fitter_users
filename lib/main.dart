@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget
       debugShowCheckedModeBanner: false,
       home: new user_Splash(),
       routes: <String, WidgetBuilder>{
-        '/Home': (BuildContext context) => new user_navigation_bar()
+        '/Home': (BuildContext context) => new user_walkthrough()
       },
     );
   }
